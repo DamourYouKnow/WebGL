@@ -1,0 +1,12 @@
+{
+    "include": [
+        "src/client"
+    ],
+    "compilerOptions": {
+        "module": "ESNext",
+        "target": "ESNext",
+        "esModuleInterop": true,
+        "lib": ["ESNext", "DOM"],
+        "types": ["@types/webgl-ext"]
+    }
+}
