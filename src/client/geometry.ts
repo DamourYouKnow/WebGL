@@ -1,17 +1,33 @@
 export class Mesh {
     private vertices: Float32Array;
-    private indices?: Uint32Array;
+    private indices?: Uint16Array;
 
-    constructor(vertices: Float32Array, indices?: Uint32Array) {
-        this.vertices = vertices;
-        this.indices = indices;
+    constructor(
+        vertices: Float32Array | number[], 
+        indices?: Uint16Array | number[]
+    ) {
+        if (vertices instanceof Float32Array) {
+            this.vertices = vertices;
+        }
+        else {
+            this.vertices = new Float32Array(vertices);
+        }
+
+        if (indices) {
+            if (indices instanceof Uint16Array) {
+                this.indices = indices;
+            }
+            else {
+                this.indices = new Uint16Array(indices);
+            }
+        }
     }
     
     Vertices(): Float32Array {
         return this.vertices;
     }
 
-    Indices(): Uint32Array | null {
+    Indices(): Uint16Array | null {
         if (!this.indices) return null;
         return this.indices;
     }
@@ -47,7 +63,7 @@ export const Shapes = {
             -width, height
         ]);
 
-        const indices = new Uint32Array([
+        const indices = new Uint16Array([
             0, 2, 3,
             0, 1, 2
         ]);
@@ -59,7 +75,7 @@ export const Shapes = {
         // TODO: Assert vertices >= 3
 
         const verticeArray = new Float32Array((vertices + 1) * 2);
-        const indexArray = new Uint32Array(vertices * 3);
+        const indexArray = new Uint16Array(vertices * 3);
         const angleStep = (2.0 * Math.PI) / vertices;
         let currentAngle = 0.0;
         let index = 0;
