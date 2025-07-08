@@ -75,7 +75,7 @@ async function main() {
     const canvas = createCanvas();
     if (!canvas) return;
     
-    const shape = Shapes.circle(0.5, 8);
+    const shape = Shapes.circle(0.5);
 
     const app = new App(canvas);
 
