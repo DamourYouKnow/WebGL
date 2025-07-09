@@ -1,4 +1,4 @@
-import { Mesh, Shapes } from "./geometry";
+import { Shapes } from "./geometry";
 import { requestFile } from "./web";
 
 let webgl: WebGLRenderingContext = null;
@@ -75,7 +75,7 @@ async function main() {
     const canvas = createCanvas();
     if (!canvas) return;
     
-    const shape = Shapes.circle(0.5);
+    const shape = Shapes.circle(0.5, 32);
 
     const app = new App(canvas);
 
@@ -89,24 +89,51 @@ async function main() {
     webgl.bufferData(webgl.ELEMENT_ARRAY_BUFFER, shape.Indices(), webgl.STATIC_DRAW);
     webgl.bindBuffer(webgl.ELEMENT_ARRAY_BUFFER, null);
 
+    const colorBuffer = webgl.createBuffer();
+
+    const colorValues = shape.Vertices().reduce((acc, _, i) => {
+        return (i + 1) % 2 == 0 ?  [
+            ...acc, 
+            Math.random(),
+            Math.random(),
+            Math.random(),
+            1.0
+        ] : acc;
+    }, []);
+
+    webgl.bindBuffer(webgl.ARRAY_BUFFER, colorBuffer);
+    webgl.bufferData(webgl.ARRAY_BUFFER, new Float32Array(colorValues), webgl.STATIC_DRAW);
+    webgl.bindBuffer(webgl.ARRAY_BUFFER, null);
+
     const shaderProgram = await app.LoadShaderProgram(
-        'basic_vertex.glsl', 
-        'basic_fragment.glsl'
+        'color_vertex.glsl', 
+        'color_fragment.glsl'
     );
-    webgl.useProgram(shaderProgram);
+
+    const positionLocation = webgl.getAttribLocation(
+        shaderProgram, 
+        "a_position"
+    );
+    const colorLocation = webgl.getAttribLocation(
+        shaderProgram,
+        "a_color"
+    );
 
     webgl.bindBuffer(webgl.ARRAY_BUFFER, vertexBuffer);
+    webgl.vertexAttribPointer(positionLocation, 2, webgl.FLOAT, false, 0, 0); 
+    webgl.enableVertexAttribArray(positionLocation);
+
+    webgl.bindBuffer(webgl.ARRAY_BUFFER, colorBuffer);
+    webgl.vertexAttribPointer(colorLocation, 4, webgl.FLOAT, false, 0, 0); 
+    webgl.enableVertexAttribArray(colorLocation);
+   
     webgl.bindBuffer(webgl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
-    const location = webgl.getAttribLocation(shaderProgram, "a_position");
-    webgl.vertexAttribPointer(location, 2, webgl.FLOAT, false, 0, 0); 
-
-    webgl.enableVertexAttribArray(location);
+    webgl.useProgram(shaderProgram);
 
     webgl.clearColor(0.5, 0.5, 0.5, 0.9);
     webgl.enable(webgl.DEPTH_TEST);
     webgl.clear(webgl.COLOR_BUFFER_BIT);
-
     webgl.viewport(0, 0, canvas.width, canvas.height);
 
     webgl.drawElements(
