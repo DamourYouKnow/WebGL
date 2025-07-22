@@ -9,7 +9,7 @@
     "clean": "rm rf public/scripts/*",
     "lint": "npx eslint .",
     "lint-fix": "npx eslint . --fix",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npx tsx --tsconfig ./tsconfig.server.json ./src/client/tests/tests.ts",
     "build": "npx rollup -c",
     "build-prod": "npx rollup -c --environment BUILD:production"
   },

@@ -1,16 +1,21 @@
 import { Shapes } from "./geometry";
+import { Matrix4 } from "./math/matrix";
 import { requestFile } from "./web";
 
 let webgl: WebGLRenderingContext = null;
 
 class App {
+    // TODO: Encapsulate, make private
     public Context: WebGLRenderingContext = null;
+    private canvas: HTMLCanvasElement;
 
     constructor(canvas: HTMLCanvasElement) {
+        this.canvas = canvas;
         this.Context = canvas.getContext("webgl");
         webgl = this.Context;
     }
 
+    // TODO: Return none if error?
     public async LoadShaderProgram(
         vertexPath: string, 
         framentPath: string
@@ -29,6 +34,18 @@ class App {
         this.Context.attachShader(shaderProgram, fragmentShader);
 
         this.Context.linkProgram(shaderProgram);
+
+        const linkStatus = this.Context.getProgramParameter(
+            shaderProgram, 
+            this.Context.LINK_STATUS
+        );
+
+        if (!linkStatus) {
+            const errMessage = 'Shader program link error:\n'
+                + this.Context.getProgramInfoLog(shaderProgram);
+
+            throw Error(errMessage);
+        }
 
         return shaderProgram;
     }
@@ -67,11 +84,33 @@ class App {
 
         return shader;
     }
+
+    public Render() {
+        this.Context.clearColor(0.5, 0.5, 0.5, 0.9);
+        this.Context.clearDepth(1.0);
+        this.Context.enable(this.Context.DEPTH_TEST);
+        this.Context.depthFunc(this.Context.LEQUAL);
+
+        this.Context.clear(
+            this.Context.COLOR_BUFFER_BIT | this.Context.DEPTH_BUFFER_BIT
+        );
+
+        const fieldOfView = (45.0 * Math.PI) / 180.0;
+        const aspect = this.canvas.width / this.canvas.height;
+        const zNear = 0.1;
+        const zFar = 100;
+        const projectionMatrix = Matrix4.CreatePerspectiveHorizontalFieldOfView(
+            fieldOfView, 
+            aspect,
+            zNear, zFar
+        );
+        const viewMatrix = Matrix4.Zero;
+    }
 }
 
-main();
+matrixTest();
 
-async function main() {
+async function colorTest() {
     const canvas = createCanvas();
     if (!canvas) return;
     
@@ -145,6 +184,64 @@ async function main() {
 }
 
 
+async function matrixTest() {
+    const canvas = createCanvas();
+    if (!canvas) return;
+    
+    const shape = Shapes.rectangle(0.5, 0.5);
+
+    const app = new App(canvas);
+
+    const vertexBuffer = webgl.createBuffer();
+    webgl.bindBuffer(webgl.ARRAY_BUFFER, vertexBuffer);
+    webgl.bufferData(webgl.ARRAY_BUFFER, shape.Vertices(), webgl.STATIC_DRAW);
+    webgl.bindBuffer(webgl.ARRAY_BUFFER, null);
+
+    const indexBuffer = webgl.createBuffer();
+    webgl.bindBuffer(webgl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+    webgl.bufferData(webgl.ELEMENT_ARRAY_BUFFER, shape.Indices(), webgl.STATIC_DRAW);
+    webgl.bindBuffer(webgl.ELEMENT_ARRAY_BUFFER, null);
+
+    const shaderProgram = await app.LoadShaderProgram(
+        'basic_vertex.glsl', 
+        'basic_fragment.glsl'
+    );
+
+    const positionLocation = webgl.getAttribLocation(
+        shaderProgram, 
+        "a_position"
+    );
+
+    const projectionMatrixLocation = webgl.getUniformLocation(
+        shaderProgram,
+        "u_projectionMatrix"
+    );
+
+    const modelViewMatrixLocation = webgl.getUniformLocation(
+        shaderProgram,
+        "u_modelViewMatrix"
+    );
+
+    webgl.bindBuffer(webgl.ARRAY_BUFFER, vertexBuffer);
+    webgl.vertexAttribPointer(positionLocation, 2, webgl.FLOAT, false, 0, 0); 
+    webgl.enableVertexAttribArray(positionLocation);
+   
+    webgl.bindBuffer(webgl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+
+    webgl.useProgram(shaderProgram);
+
+    webgl.clearColor(0.5, 0.5, 0.5, 0.9);
+    webgl.enable(webgl.DEPTH_TEST);
+    webgl.clear(webgl.COLOR_BUFFER_BIT);
+    webgl.viewport(0, 0, canvas.width, canvas.height);
+
+    webgl.drawElements(
+        webgl.TRIANGLES, 
+        shape.IndexCount(),
+        webgl.UNSIGNED_SHORT,
+        0
+    );
+}
 
 function createCanvas(): HTMLCanvasElement {
     const container = document.getElementById('canvas-container');

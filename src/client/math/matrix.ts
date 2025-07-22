@@ -1,74 +1,4 @@
-export class Vector2 {
-    public x: number;
-    public y: number;
-
-    public constructor(x: number=0.0, y: number=0.0) {
-        this.x = x;
-        this.y = y;
-    }
-
-    public static Add(a: Vector2, b: Vector2): Vector2 {
-        return new Vector2(a.x + b.x, a.y + b.y);
-    }
-    
-    public Add(other: Vector2): Vector2 {
-        return Vector2.Add(this, other);
-    }
-
-    public Scale(scalar: number): Vector2 {
-        return new Vector2(this.x * scalar, this.y * scalar);
-    }
-
-    public LengthSquared(): number {
-        return (this.x * this.x) + (this.y * this.y);
-    }
-
-    public Length(): number {
-        return Math.sqrt(this.LengthSquared());
-    }
-
-    public Normalize(): Vector2 {
-        return this.Scale(1.0 / this.Length());
-    }
-}
-
-
-export class Vector3 {
-    public x: number;
-    public y: number;
-    public z: number;
-    
-    public constructor(x: number=0.0, y: number=0.0, z: number=0.0) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
-
-    public static Add(a: Vector3, b: Vector3): Vector3 {
-        return new Vector3(a.x + b.x, a.y + b.y, a.z + b.z);
-    }
-    
-    public Add(other: Vector3): Vector3 {
-        return Vector3.Add(this, other);
-    }
-
-    public Scale(scalar: number): Vector3 {
-        return new Vector3(this.x * scalar, this.y * scalar, this.z * scalar);
-    }
-
-    public LengthSquared(): number {
-        return (this.x * this.x) + (this.y * this.y) + (this.z * this.z);
-    }
-
-    public Length(): number {
-        return Math.sqrt(this.LengthSquared());
-    }
-
-    public Normalize(): Vector3 {
-        return this.Scale(1.0 / this.Length());
-    }
-}
-
+import { Vector3 } from "./vector"
 
 type Tuple<
     T,
@@ -87,6 +17,10 @@ export class Matrix {
     public constructor(values: number[], dimensions?: number) {
         this.values = new Float32Array(values);
         this.dimensions = dimensions || Math.sqrt(values.length);
+    }
+
+    public Values(): Float32Array {
+        return this.values;
     }
 
     public static Multiply(
@@ -110,7 +44,6 @@ export class Matrix {
 
         return new Matrix(values, this.dimensions);
     }
-
 }
 
 export class Matrix2 extends Matrix {
@@ -126,6 +59,10 @@ export class Matrix2 extends Matrix {
 
     public constructor(values: Matrix2Array) {
         super(values, 2);
+    }
+
+    public Determinant(): number {
+        return (this.values[0] * this.values[3]) - (this.values[1] * this.values[2]);
     }
 }
 
@@ -150,6 +87,16 @@ export class Matrix3 extends Matrix {
 
     public constructor(values: Matrix3Array) {
         super(values, 3);
+    }
+
+    public Determinant(): number {
+        const mat = this.values;
+
+        const cofactor11 = mat[0] * (mat[4] * mat[8] - mat[7] * mat[5]);
+        const cofactor12 = mat[1] * (mat[3] * mat[8] - mat[6] * mat[5]);
+        const cofactor13 = mat[2] * (mat[3] * mat[7] - mat[6] * mat[4]);
+
+        return cofactor11 - cofactor12 + cofactor13;
     }
 }
 
@@ -305,16 +252,57 @@ export class Matrix4 extends Matrix {
         super(values, 4);
     }
 
-    public Values(): Float32Array {
-        return this.values;
+    public Scale(scalar: number): Matrix4 {
+        const values = Array.from(this.values.map((value) => value * scalar));
+        return new Matrix4(values as Matrix4Array);
     }
 
-    public Determinant(): Matrix4 {
-        throw Error("Not implemented");
+    public Transpose(): Matrix4 {
+        const mat = this.values;
+        
+        return new Matrix4([
+            mat[0], mat[4], mat[8], mat[12],
+            mat[1], mat[5], mat[9], mat[13],
+            mat[2], mat[6], mat[10], mat[14],
+            mat[3], mat[7], mat[11], mat[15]
+        ]);
     }
 
-    public Inverse(): Matrix4 {
-        throw Error("Not implemented");
+    public Determinant(): number {
+        const mat = this.values;
+
+        let cofactor22 = mat[5] * (mat[10] * mat[15] - mat[14] * mat[11]);
+        let cofactor23 =  mat[6] * (mat[9] * mat[15] - mat[13] * mat[11]);
+        let cofactor24 =  mat[7] * (mat[9] * mat[14] - mat[13] * mat[10]);
+        const cofactor11 = mat[0] * (cofactor22 - cofactor23 + cofactor24);
+
+        let cofactor21 =  mat[4] * (mat[10] * mat[15] - mat[14] * mat[11]);
+        cofactor23 =  mat[6] * (mat[8] * mat[15] - mat[12] * mat[11]);
+        cofactor24 =  mat[7] * (mat[8] * mat[14] - mat[12] * mat[10]);
+        const cofactor12 = mat[1] * (cofactor21 - cofactor23 + cofactor24);
+
+        cofactor21 =  mat[4] * (mat[9] * mat[15] - mat[13] * mat[11]);
+        cofactor22 =  mat[5] * (mat[8] * mat[15] - mat[12] * mat[11]);
+        cofactor24 =  mat[7] * (mat[8] * mat[13] - mat[12] * mat[9]);
+        const cofactor13 = mat[2] * (cofactor21 - cofactor22 + cofactor24);
+
+        cofactor21 =  mat[4] * (mat[9] * mat[14] - mat[13] * mat[10]);
+        cofactor22 =  mat[5] * (mat[8] * mat[14] - mat[12] * mat[10]);
+        cofactor23 =  mat[6] * (mat[8] * mat[13] - mat[12] * mat[9]);
+        const cofactor14 = mat[3] * (cofactor21 - cofactor22 + cofactor23);
+    
+        return cofactor11 - cofactor12 + cofactor13 - cofactor14;
+    }
+
+    public Adjugate(): Matrix4 {
+        return this.Cofactor().Transpose();
+    }
+
+    public Inverse(): Matrix4 | null {
+        const determinant = this.Determinant();
+        if (determinant === 0) return null;
+
+        return this.Adjugate().Scale(1.0 / determinant);
     }
 
     public Translate(): Matrix4 {
@@ -327,5 +315,38 @@ export class Matrix4 extends Matrix {
 
     public Orthographic(): Matrix4 {
         throw Error("Not implemented");
+    }
+
+    public Minor(row: number, column: number): Matrix3 {
+        const values: number[] = [];
+
+        for (let i = 0; i < this.values.length; i++) {
+            const currentRow = Math.floor(i / 4);
+            const currentColumn = i % 4;
+
+            if (currentRow != row && currentColumn != column) {
+                values.push(this.values[i]);
+            }
+        }
+
+        return new Matrix3(values as Matrix3Array);
+    }
+
+    public Cofactor(): Matrix4 {
+        const values: number[] = [];
+
+        for (let i = 0; i < this.values.length; i++) {
+            const currentRow = Math.floor(i / 4);
+            const currentColumn = i % 4;
+
+            const minor = this.Minor(currentRow, currentColumn);
+
+            const cofactor = Math.pow(-1, currentRow + 1 + currentColumn + 1)
+                * minor.Determinant();
+
+            values.push(cofactor);
+        }
+
+        return new Matrix4(values as Matrix4Array);
     }
 }
