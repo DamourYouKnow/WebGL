@@ -240,12 +240,26 @@ export class Matrix4 extends Matrix {
         ]);
     }
 
+    public static CreateScale(scale: Vector3): Matrix4 {
+        return new Matrix4([
+            scale.x, 0, 0, 0,
+            0, scale.y, 0, 0,
+            0, 0, scale.z, 0,
+            0, 0, 0, 1
+        ]);
+    }
+
     public static CreateSRT(
-        scale: number,
+        scale: Vector3 | number,
         rotation: Vector3,
         translation: Vector3
     ): Matrix4 {
-        throw Error("Not implemented");
+        scale = typeof scale === "number" ?
+            new Vector3(scale, scale, scale) : scale;
+
+        let matrix = Matrix4.CreateScale(scale);
+
+        throw Error("Not implemented")
     }
 
     public constructor(values: Matrix4Array) {
@@ -255,6 +269,39 @@ export class Matrix4 extends Matrix {
     public Scale(scalar: number): Matrix4 {
         const values = Array.from(this.values.map((value) => value * scalar));
         return new Matrix4(values as Matrix4Array);
+    }
+
+    public Rotate(angle: number, axis: Vector3): Matrix4 {
+        const length = axis.Length();
+        if (length <= 0) return this;
+
+        const angleSin = Math.sin(angle);
+        const angleCos = Math.cos(angle);
+
+        const rotationMatrix = new Matrix4([
+            ((1 - angleCos) * axis.x * axis.x) + (angleCos),
+            ((1 - angleCos) * axis.x * axis.y) - (axis.z * angleSin),
+            ((1 - angleCos) * axis.z * axis.x) + (axis.y * angleSin),
+            0.0,
+
+            ((1 - angleCos) * axis.x * axis.y) + (axis.z * angleSin),
+            ((1 - angleCos) * axis.y * axis.y) + (angleCos),
+            ((1 - angleCos) * axis.y * axis.z) - (axis.x * angleSin),
+            0.0,
+
+            ((1 - angleCos) * axis.z * axis.x) - (axis.y * angleSin),
+            ((1 - angleCos) * axis.y * axis.z) + (axis.x * angleSin),
+            ((1 - angleCos) * axis.z * axis.z) + (angleCos),
+            0.0,
+
+            0.0,
+            0.0,
+            0.0,
+            1.0
+        ]);
+
+        // TODO: Use Multiply on Matrix4 class
+        return Matrix4.Multiply(rotationMatrix, this) as Matrix4;
     }
 
     public Transpose(): Matrix4 {
