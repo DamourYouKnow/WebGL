@@ -1,5 +1,6 @@
 import { Shapes } from "./geometry";
 import { Matrix4 } from "./math/matrix";
+import { Vector3 } from "./math/vector";
 import { requestFile } from "./web";
 
 let webgl: WebGLRenderingContext = null;
@@ -86,25 +87,7 @@ class App {
     }
 
     public Render() {
-        this.Context.clearColor(0.5, 0.5, 0.5, 0.9);
-        this.Context.clearDepth(1.0);
-        this.Context.enable(this.Context.DEPTH_TEST);
-        this.Context.depthFunc(this.Context.LEQUAL);
-
-        this.Context.clear(
-            this.Context.COLOR_BUFFER_BIT | this.Context.DEPTH_BUFFER_BIT
-        );
-
-        const fieldOfView = (45.0 * Math.PI) / 180.0;
-        const aspect = this.canvas.width / this.canvas.height;
-        const zNear = 0.1;
-        const zFar = 100;
-        const projectionMatrix = Matrix4.CreatePerspectiveHorizontalFieldOfView(
-            fieldOfView, 
-            aspect,
-            zNear, zFar
-        );
-        const viewMatrix = Matrix4.Zero;
+        throw Error("Not implemented");
     }
 }
 
@@ -230,10 +213,45 @@ async function matrixTest() {
 
     webgl.useProgram(shaderProgram);
 
-    webgl.clearColor(0.5, 0.5, 0.5, 0.9);
-    webgl.enable(webgl.DEPTH_TEST);
-    webgl.clear(webgl.COLOR_BUFFER_BIT);
     webgl.viewport(0, 0, canvas.width, canvas.height);
+
+    webgl.clearColor(0.5, 0.5, 0.5, 0.9);
+    webgl.clearDepth(1.0);
+    webgl.enable(webgl.DEPTH_TEST);
+    webgl.depthFunc(webgl.LEQUAL);
+
+    webgl.clear(
+        webgl.COLOR_BUFFER_BIT | webgl.DEPTH_BUFFER_BIT
+    );
+
+    const fieldOfView = (45.0 * Math.PI) / 180.0;
+    const aspect = canvas.width / canvas.height;
+    const zNear = 0.1;
+    const zFar = 100;
+
+    const projectionMatrix = Matrix4.CreatePerspectiveHorizontalFOV(
+        fieldOfView, 
+        aspect,
+        zNear, zFar
+    );
+
+    const viewMatrix = Matrix4.CreateView(
+        new Vector3(0, 0, -10),
+        Vector3.Up,
+        Vector3.Zero
+    );
+
+    webgl.uniformMatrix4fv(
+        projectionMatrixLocation,
+        false,
+        projectionMatrix.Values()
+    );
+
+    webgl.uniformMatrix4fv(
+        modelViewMatrixLocation,
+        false,
+        viewMatrix.Values()
+    );
 
     webgl.drawElements(
         webgl.TRIANGLES, 

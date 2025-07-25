@@ -163,7 +163,7 @@ export class Matrix4 extends Matrix {
         ]);
     }
 
-    public static CreatePerspectiveVerticalFieldOfView(
+    public static CreatePerspectiveVerticalFOV(
         verticalFieldOfViewDegrees: number,
         aspect: number,
         near: number,
@@ -182,7 +182,7 @@ export class Matrix4 extends Matrix {
         );
     }
 
-    public static CreatePerspectiveHorizontalFieldOfView(
+    public static CreatePerspectiveHorizontalFOV(
         horizontalFieldOfViewDegrees: number,
         aspect: number,
         near: number,
@@ -264,6 +264,29 @@ export class Matrix4 extends Matrix {
         matrix = matrix.Translate(translation);
 
         return matrix;
+    }
+
+    public static CreateView(
+        eyePosition: Vector3,
+        up: Vector3,
+        lookAtPosition: Vector3
+    ): Matrix4 {
+        const zAxis = eyePosition.Subtract(lookAtPosition).Normalize();
+        const xAxis = up.CrossProduct(zAxis).Normalize();
+        const yAxis = zAxis.CrossProduct(xAxis);
+
+        const position = new Vector3(
+            xAxis.Inverse().DotProduct(eyePosition),
+            yAxis.Inverse().DotProduct(eyePosition),
+            zAxis.Inverse().DotProduct(eyePosition)
+        );
+
+        return new Matrix4([
+            xAxis.x, xAxis.y, xAxis.z, position.x,
+            yAxis.x, yAxis.y, yAxis.z, position.y,
+            zAxis.x, zAxis.y, zAxis.z, position.z,
+            0, 0, 0, 1
+        ]);
     }
 
     public constructor(values: Matrix4Array) {
