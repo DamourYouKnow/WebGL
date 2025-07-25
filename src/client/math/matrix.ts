@@ -258,8 +258,12 @@ export class Matrix4 extends Matrix {
             new Vector3(scale, scale, scale) : scale;
 
         let matrix = Matrix4.CreateScale(scale);
+        matrix = matrix.Rotate(rotation.z, Vector3.Forward);
+        matrix = matrix.Rotate(rotation.x, Vector3.Right);
+        matrix = matrix.Rotate(rotation.y, Vector3.Up);
+        matrix = matrix.Translate(translation);
 
-        throw Error("Not implemented")
+        return matrix;
     }
 
     public constructor(values: Matrix4Array) {
@@ -352,8 +356,30 @@ export class Matrix4 extends Matrix {
         return this.Adjugate().Scale(1.0 / determinant);
     }
 
-    public Translate(): Matrix4 {
-        throw Error("Not implemented");
+    public Translate(translation: Vector3): Matrix4 {
+        const mat = this.values;
+        
+        return new Matrix4([
+            mat[0], 
+            mat[1],
+            mat[2],
+            mat[3],
+
+            mat[4],
+            mat[5],
+            mat[6],
+            mat[7],
+
+            mat[8],
+            mat[9], 
+            mat[10], 
+            mat[11],
+            
+            mat[12] + translation.x, 
+            mat[13] + translation.y, 
+            mat[14] + translation.z, 
+            mat[15]
+        ]);
     }
 
     public Perspective(): Matrix4 {
