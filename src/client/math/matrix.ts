@@ -155,7 +155,7 @@ export class Matrix4 extends Matrix {
     ): Matrix4 {
         const frustrumTop = Math.tan(
             (verticalFieldOfViewDegrees / 2) * (Math.PI / 180)
-        );
+        ) * near;
 
         const frustrumRight = frustrumTop * aspect;
 
@@ -174,7 +174,7 @@ export class Matrix4 extends Matrix {
     ): Matrix4 {
         const frustrumRight = Math.tan(
             (horizontalFieldOfViewDegrees / 2) * (Math.PI / 180)
-        );
+        ) * near;
 
         const frustrumTop = frustrumRight / aspect;
 
@@ -266,15 +266,28 @@ export class Matrix4 extends Matrix {
         );
 
         return new Matrix4([
-            xAxis.x, xAxis.y, xAxis.z, position.x,
-            yAxis.x, yAxis.y, yAxis.z, position.y,
-            zAxis.x, zAxis.y, zAxis.z, position.z,
-            0, 0, 0, 1
+            xAxis.x, yAxis.x, zAxis.x, 0,
+            xAxis.y, yAxis.y, zAxis.y, 0,
+            xAxis.z, yAxis.z, zAxis.z, 0,
+            position.x, position.y, position.z, 1
         ]);
     }
 
     public constructor(values: Matrix4Array) {
         super(values, 4);
+    }
+
+    public ValuesRowMajor(): Float32Array {
+        return this.values;
+    }
+
+    public ValuesColumnMajor(): Float32Array {
+        return new Float32Array([
+            this.values[0], this.values[4], this.values[8], this.values[12],
+            this.values[1], this.values[5], this.values[9], this.values[13],
+            this.values[2], this.values[6], this.values[10], this.values[14],
+            this.values[3], this.values[7], this.values[11], this.values[15]
+        ]);
     }
 
     public Row(i: number): number[] {

@@ -224,7 +224,7 @@ async function matrixTest() {
         webgl.COLOR_BUFFER_BIT | webgl.DEPTH_BUFFER_BIT
     );
 
-    const fieldOfView = (45.0 * Math.PI) / 180.0;
+    const fieldOfView = 45;
     const aspect = canvas.width / canvas.height;
     const zNear = 0.1;
     const zFar = 100;
@@ -244,13 +244,13 @@ async function matrixTest() {
     webgl.uniformMatrix4fv(
         projectionMatrixLocation,
         false,
-        projectionMatrix.Values()
+        projectionMatrix.ValuesColumnMajor()
     );
 
     webgl.uniformMatrix4fv(
         modelViewMatrixLocation,
         false,
-        viewMatrix.Values()
+        viewMatrix.ValuesColumnMajor()
     );
 
     webgl.drawElements(
