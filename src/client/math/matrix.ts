@@ -23,26 +23,10 @@ export class Matrix {
         return this.values;
     }
 
-    public static Multiply(
-        matrixA: Matrix,
-        matrixB: Matrix
-    ) : Matrix {
-        throw new Error("Not implemented");
-    }
-
-
-    public Transpose(): Matrix {
-        const values = [];
- 
-        for (let row = 0; row < this.dimensions; row++) {
-            for (let column = 0; column < this.dimensions; column++) {
-                const x = row 
-
-                values.push(this.values[(column * this.dimensions) + row]);
-            }
-        }
-
-        return new Matrix(values, this.dimensions);
+    public Equals(other: Matrix, tolerance: number=0.0): boolean {
+        return this.values.every((value, i) => {
+            return Math.abs(value - other.values[i]) <= tolerance;
+        });
     }
 }
 
@@ -291,6 +275,45 @@ export class Matrix4 extends Matrix {
 
     public constructor(values: Matrix4Array) {
         super(values, 4);
+    }
+
+    public Row(i: number): number[] {
+        throw Error("Not implemented");
+    }
+
+    public Column(j: number): number[] {
+        throw Error("Not implemented");
+    }
+
+    public static Multiply(matrixA: Matrix4, matrixB: Matrix4): Matrix4 {
+        const a = matrixA.Values();
+        const b = matrixB.Values();
+
+        return new Matrix4([
+            (a[0] * b[0]) + (a[1] * b[4]) + (a[2] * b[8]) + (a[3] * b[12]),
+            (a[0] * b[1]) + (a[1] * b[5]) + (a[2] * b[9]) + (a[3] * b[13]),
+            (a[0] * b[2]) + (a[1] * b[6]) + (a[2] * b[10]) + (a[3] * b[14]),
+            (a[0] * b[3]) + (a[1] * b[7]) + (a[2] * b[11]) + (a[3] * b[15]),
+            
+            (a[4] * b[0]) + (a[5] * b[4]) + (a[6] * b[8]) + (a[7] * b[12]),
+            (a[4] * b[1]) + (a[5] * b[5]) + (a[6] * b[9]) + (a[7] * b[13]),
+            (a[4] * b[2]) + (a[5] * b[6]) + (a[6] * b[10]) + (a[7] * b[14]),
+            (a[4] * b[3]) + (a[5] * b[7]) + (a[6] * b[11]) + (a[7] * b[15]),
+
+            (a[8] * b[0]) + (a[9] * b[4]) + (a[10] * b[8]) + (a[11] * b[12]),
+            (a[8] * b[1]) + (a[9] * b[5]) + (a[10] * b[9]) + (a[11] * b[13]),
+            (a[8] * b[2]) + (a[9] * b[6]) + (a[10] * b[10]) + (a[11] * b[14]),
+            (a[8] * b[3]) + (a[9] * b[7]) + (a[10] * b[11]) + (a[11] * b[15]),
+
+            (a[12] * b[0]) + (a[13] * b[4]) + (a[14] * b[8]) + (a[15] * b[12]),
+            (a[12] * b[1]) + (a[13] * b[5]) + (a[14] * b[9]) + (a[15] * b[13]),
+            (a[12] * b[2]) + (a[13] * b[6]) + (a[14] * b[10]) + (a[15] * b[14]),
+            (a[12] * b[3]) + (a[13] * b[7]) + (a[14] * b[11]) + (a[15] * b[15])
+        ]);
+    }
+
+    public Multiply(other: Matrix4): Matrix4 {
+        return Matrix4.Multiply(this, other);
     }
 
     public Scale(scalar: number): Matrix4 {

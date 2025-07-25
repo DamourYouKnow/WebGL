@@ -14,6 +14,15 @@ export class Vector2 {
         this.y = y;
     }
 
+    public Equals(other: Vector2, tolerance: number=0.0): boolean {
+        return [
+            this.x - other.x, 
+            this.y - other.y
+        ].every((value) => {
+            return Math.abs(value) <= tolerance;
+        });
+    }
+
     public static Add(a: Vector2, b: Vector2): Vector2 {
         return new Vector2(a.x + b.x, a.y + b.y);
     }
@@ -84,6 +93,16 @@ export class Vector3 {
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+
+    public Equals(other: Vector3, tolerance: number=0.0): boolean {
+        return [
+            this.x - other.x, 
+            this.y - other.y, 
+            this.z - other.z
+        ].every((value) => {
+            return Math.abs(value) <= tolerance;
+        });
     }
 
     public static Add(a: Vector3, b: Vector3): Vector3 {
