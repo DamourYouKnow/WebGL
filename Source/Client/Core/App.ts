@@ -1,7 +1,7 @@
-import { Shapes } from "./geometry";
-import { Matrix4 } from "./math/matrix";
-import { Vector3 } from "./math/vector";
-import { requestFile } from "./web";
+import { Shapes } from "./Geometry";
+import { Matrix4 } from "./Math/Matrix";
+import { Vector3 } from "./Math/Vector";
+import { requestFile } from "./Web";
 
 let webgl: WebGLRenderingContext = null;
 
@@ -14,6 +14,10 @@ class App {
         this.canvas = canvas;
         this.Context = canvas.getContext("webgl");
         webgl = this.Context;
+    }
+
+    public Update(deltaTime: number) {
+
     }
 
     // TODO: Return none if error?

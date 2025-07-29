@@ -1,4 +1,4 @@
-import { Vector3 } from "./vector"
+import { Vector3 } from "./Vector"
 
 type Tuple<
     T,

@@ -5,11 +5,11 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "npx tsx --tsconfig ./tsconfig.server.json ./src/server/server.ts",
+    "start": "npx tsx --tsconfig ./tsconfig.server.json ./Source/Server/Server.ts",
     "clean": "rm rf public/scripts/*",
     "lint": "npx eslint .",
     "lint-fix": "npx eslint . --fix",
-    "test": "npx tsx --tsconfig ./tsconfig.server.json ./src/client/tests/math_tests.ts",
+    "test": "npx tsx --tsconfig ./tsconfig.server.json ./Source/Client/Core/Tests/MathTests.ts",
     "build": "npx rollup -c",
     "build-prod": "npx rollup -c --environment BUILD:production"
   },
