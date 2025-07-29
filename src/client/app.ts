@@ -236,7 +236,7 @@ async function matrixTest() {
     );
 
     const viewMatrix = Matrix4.CreateView(
-        new Vector3(0, 0, -10),
+        new Vector3(5, 0, -5),
         Vector3.Up,
         Vector3.Zero
     );

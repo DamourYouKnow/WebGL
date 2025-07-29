@@ -219,27 +219,27 @@ export class Matrix4 extends Matrix {
         if (deltaY <= 0) throw Error("deltaY <= 0");
         if (deltaZ <= 0) throw Error("deltaZ <= 0");
         if (near <= 0) throw Error("near <= 0");
-        if (far <= 0) throw Error("far <= 0"); 
-        
+        if (far <= 0) throw Error("far <= 0");
+
         return new Matrix4([
             2.0 * near / deltaX, 
             0.0, 
-            0.0, 
+            (right + left) / deltaX, 
             0.0, 
 
             0.0, 
             2.0 * near / deltaY, 
-            0.0, 
+            (top + bottom) / deltaY, 
             0.0, 
 
-            (right + left) / deltaX,
-            (top + bottom) / deltaY,
+            0.0,
+            0.0,
             -(near + far) / deltaZ,
-            -1.0,
+            -2.0 * near * far / deltaZ,
 
             0.0,
             0.0,
-            -2.0 * near * far * deltaZ,
+            -1.0,
             0.0
         ]);
     }
@@ -347,6 +347,7 @@ export class Matrix4 extends Matrix {
         return matrix;
     }
 
+    // TODO: Create world view if lookAtPosition is undefined
     public static CreateView(
         eyePosition: Vector3,
         up: Vector3,
@@ -363,10 +364,10 @@ export class Matrix4 extends Matrix {
         );
 
         return new Matrix4([
-            xAxis.x, yAxis.x, zAxis.x, 0,
-            xAxis.y, yAxis.y, zAxis.y, 0,
-            xAxis.z, yAxis.z, zAxis.z, 0,
-            position.x, position.y, position.z, 1
+            xAxis.x, xAxis.y, xAxis.z, position.x,
+            yAxis.x, yAxis.y, yAxis.z, position.y,
+            zAxis.x, zAxis.y, zAxis.z, position.z,
+            0, 0, 0, 1
         ]);
     }
 
@@ -458,10 +459,9 @@ export class Matrix4 extends Matrix {
             0.0,
             0.0,
             1.0
-        ]);
+        ]).Transpose(); // TODO: Row order instead of transpose
 
-        // TODO: Use Multiply on Matrix4 class
-        return Matrix4.Multiply(rotationMatrix, this) as Matrix4;
+        return Matrix4.Multiply(this, rotationMatrix) as Matrix4;
     }
 
     public Transpose(): Matrix4 {
@@ -519,21 +519,21 @@ export class Matrix4 extends Matrix {
             mat[0], 
             mat[1],
             mat[2],
-            mat[3],
+            mat[3] + translation.x,
 
             mat[4],
             mat[5],
             mat[6],
-            mat[7],
+            mat[7] + translation.y,
 
             mat[8],
             mat[9], 
             mat[10], 
-            mat[11],
+            mat[11] + translation.z,
             
-            mat[12] + translation.x, 
-            mat[13] + translation.y, 
-            mat[14] + translation.z, 
+            mat[12], 
+            mat[13], 
+            mat[14], 
             mat[15]
         ]);
     }
