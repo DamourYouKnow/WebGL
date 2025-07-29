@@ -1,5 +1,5 @@
 import { TestModule } from './tests';
-import { Matrix4 } from '../math/matrix';
+import { Matrix4 } from '../core/math/matrix';
 
 const matrixTests = new TestModule("Matrices");
 
