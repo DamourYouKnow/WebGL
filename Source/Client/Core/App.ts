@@ -6,6 +6,8 @@ import { ShaderProgram } from "./Shader";
 let webgl: WebGLRenderingContext = null;
 
 export class App {
+    public static Instance: App;
+
     // TODO: Encapsulate, make private
     public Context: WebGLRenderingContext = null;
     private canvas: HTMLCanvasElement;
@@ -14,6 +16,8 @@ export class App {
         this.canvas = canvas;
         this.Context = canvas.getContext("webgl");
         webgl = this.Context;
+
+        App.Instance = this;
     }
 
     public Update(deltaTime: number) {
@@ -39,9 +43,10 @@ async function colorTest() {
     const canvas = createCanvas();
     if (!canvas) return;
     
-    const shape = Shapes.circle(0.5, 32);
 
     const app = new App(canvas);
+
+    const shape = Shapes.circle(0.5, 32);
 
     const shaderProgram = await ShaderProgram.Load(
         webgl,
@@ -50,10 +55,6 @@ async function colorTest() {
     );
 
     shape.SetShaderProgram(shaderProgram);
-
-
-    const vertexBuffer = shape.CreateVertexBuffer(webgl);
-    const indexBuffer = shape.CreateIndexBuffer(webgl);
 
     const colorBuffer = webgl.createBuffer();
 
@@ -80,7 +81,7 @@ async function colorTest() {
         "a_color"
     );
 
-    webgl.bindBuffer(webgl.ARRAY_BUFFER, vertexBuffer);
+    webgl.bindBuffer(webgl.ARRAY_BUFFER, shape.GetVertexBuffer());
     webgl.vertexAttribPointer(positionLocation, 2, webgl.FLOAT, false, 0, 0); 
     webgl.enableVertexAttribArray(positionLocation);
 
@@ -88,7 +89,7 @@ async function colorTest() {
     webgl.vertexAttribPointer(colorLocation, 4, webgl.FLOAT, false, 0, 0); 
     webgl.enableVertexAttribArray(colorLocation);
    
-    webgl.bindBuffer(webgl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+    webgl.bindBuffer(webgl.ELEMENT_ARRAY_BUFFER, shape.GetIndexBuffer());
 
     webgl.useProgram(shaderProgram.GetProgram());
 
@@ -109,10 +110,10 @@ async function colorTest() {
 async function matrixTest() {
     const canvas = createCanvas();
     if (!canvas) return;
-    
-    const shape = Shapes.rectangle(0.5, 0.5);
 
     const app = new App(canvas);
+    
+    const shape = Shapes.rectangle(0.5, 0.5);
 
     const shaderProgram = await ShaderProgram.Load(
         webgl,
@@ -121,9 +122,6 @@ async function matrixTest() {
     );
 
     shape.SetShaderProgram(shaderProgram);
-
-    const vertexBuffer = shape.CreateVertexBuffer(webgl);
-    const indexBuffer = shape.CreateIndexBuffer(webgl);
 
     const positionLocation = webgl.getAttribLocation(
         shaderProgram.GetProgram(), 

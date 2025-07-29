@@ -4,6 +4,8 @@ import { ShaderProgram } from './Shader';
 export class Mesh {
     private vertices: Float32Array;
     private indices?: Uint16Array;
+    private vertexBuffer: WebGLBuffer;
+    private indexBuffer?: WebGLBuffer;
     private shaderProgram: ShaderProgram;
 
     public constructor(
@@ -17,6 +19,8 @@ export class Mesh {
             this.vertices = new Float32Array(vertices);
         }
 
+        this.vertexBuffer = this.createVertexBuffer(App.Instance.Context);
+
         if (indices) {
             if (indices instanceof Uint16Array) {
                 this.indices = indices;
@@ -24,6 +28,8 @@ export class Mesh {
             else {
                 this.indices = new Uint16Array(indices);
             }
+
+            this.indexBuffer = this.createIndexBuffer(App.Instance.Context);
         }
     }
     
@@ -54,8 +60,16 @@ export class Mesh {
         return this.indices.length;
     }
 
+    public GetVertexBuffer(): WebGLBuffer {
+        return this.vertexBuffer;
+    }
+
+    public GetIndexBuffer(): WebGLBuffer | null {
+        return this.indexBuffer ? this.indexBuffer : null;
+    }
+
     // TODO: Abstraction for context
-    public CreateVertexBuffer(context: WebGLRenderingContext): WebGLBuffer {
+    private createVertexBuffer(context: WebGLRenderingContext): WebGLBuffer {
         const vertexBuffer = context.createBuffer();
         
         context.bindBuffer(context.ARRAY_BUFFER, vertexBuffer);
@@ -65,6 +79,31 @@ export class Mesh {
             this.Vertices(), 
             context.STATIC_DRAW
         );
+
+        context.bindBuffer(context.ARRAY_BUFFER, null);
+
+        return vertexBuffer;
+    }
+
+    // TODO: Abstraction for context
+    private createIndexBuffer(context: WebGLRenderingContext): WebGLBuffer {
+        const indexBuffer = context.createBuffer();
+        
+        context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, indexBuffer);
+        
+        context.bufferData(
+            context.ELEMENT_ARRAY_BUFFER, 
+            this.Indices(), 
+            context.STATIC_DRAW
+        );
+
+        context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, null);
+
+        return indexBuffer;
+    }
+
+    public Render(context: WebGLRenderingContext) {
+        context.bindBuffer(context.ARRAY_BUFFER, this.vertexBuffer);
 
         const positionAttribute = context.getAttribLocation(
             this.shaderProgram.GetProgram(),
@@ -82,30 +121,10 @@ export class Mesh {
 
         context.enableVertexAttribArray(positionAttribute);
 
-        context.bindBuffer(context.ARRAY_BUFFER, null);
 
-        return vertexBuffer;
-    }
-
-    // TODO: Abstraction for context
-    public CreateIndexBuffer(context: WebGLRenderingContext): WebGLBuffer {
-        const indexBuffer = context.createBuffer();
-        
-        context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, indexBuffer);
-        
-        context.bufferData(
-            context.ELEMENT_ARRAY_BUFFER, 
-            this.Indices(), 
-            context.STATIC_DRAW
-        );
-
-        //context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, null);
-
-        return indexBuffer;
-    }
-
-        public Render(context: WebGLRenderingContext) {
         if (this.indices) {
+            context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+
             context.drawElements(
                 context.TRIANGLES,
                 this.IndexCount(),
