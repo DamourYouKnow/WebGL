@@ -1,0 +1,33 @@
+import { Component } from "./Components/Component";
+import { StaticMeshComponent } from "./Components/StaticMeshComponent";
+import { TransformComponent } from "./Components/TransformComponent";
+
+
+
+export class Entity {
+    private components: Component[];
+
+    public constructor() {
+        this.components = [];
+    }
+
+    public AddComponent<TComponent extends Component>(
+        component: TComponent
+    ): TComponent {
+        // TODO: Create new component, or use existing one if provided
+        this.components.push(component);
+        return component;
+    }
+
+    public RemoveComponent(component: Component) {
+
+    }
+
+    // TODO: Figure out how to encapsule so that this function can only be called
+    // in the App Update() loop.
+    public Update(deltaTime: number) {
+        for (const component of this.components) {
+            component.Update(deltaTime);
+        }
+    }
+}
