@@ -1,0 +1,111 @@
+@startuml
+
+abstract class App {
+
+}
+
+class ConcreteApp {
+
+}
+
+class Scene {
+
+}
+
+class Entity {
+
+}
+
+abstract class Component {
+    -entity: Entity
+}
+
+abstract class BehaviorComponent {
+    {abstract} +Update(deltaTime: float)
+}
+
+abstract class RenderComponent {
+    {abstract} +Render()
+}
+
+class TransformComponent {
+    -position: Vector3
+}
+
+class StaticMeshComponent {
+
+}
+
+abstract class Resource {
+
+}
+
+class Mesh {
+    -vertices: float[]
+    -uvs: float[]
+    -indices: uint16[]
+}
+
+class Texture {
+
+}
+
+class Material {
+
+}
+
+class Shader {
+
+}
+
+class ShaderProgram {
+
+}
+
+struct Vector3 {
+    +x: int
+    +y: int
+    +z: int
+}
+
+struct Vector2 {
+    +x: int
+    +y: int
+}
+
+struct Matrix2 {
+    -values: float[4]
+}
+
+struct Matrix3 {
+    -values: float[9]
+}
+
+struct Matrix4 {
+    -values: float[16]
+}
+
+App <|-- ConcreteApp
+
+Resource <|-- Mesh
+Resource <|-- Texture
+Resource <|-- Material
+Resource <|-- Shader
+Resource <|-- ShaderProgram
+
+App "1" *-- "*" Scene
+Scene "1" *-- "*" Entity
+
+Entity "1" *-- "*" Component
+
+ShaderProgram o-- "*" Shader
+
+Component <|-- BehaviorComponent
+Component <|-- RenderComponent
+BehaviorComponent <|-- TransformComponent
+RenderComponent <|-- StaticMeshComponent
+
+StaticMeshComponent o-- "1" Mesh
+Mesh o-- "1" ShaderProgram
+
+@enduml
