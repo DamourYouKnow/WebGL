@@ -1,4 +1,3 @@
-import { TransformComponent } from "./Components/TransformComponent";
 import { requestFile } from "./Web";
 
 type ShaderType = "Vertex" | "Fragment";

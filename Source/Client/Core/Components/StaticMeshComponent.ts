@@ -1,7 +1,7 @@
-import { Component } from "./Component";
+import RenderComponent from "./RenderComponent";
 
-export class StaticMeshComponent extends Component {
-    public Update(deltaTime: number) {
-        throw new Error("Not implemented");
+export default class StaticMeshComponent extends RenderComponent {
+    public override Render(context: WebGLRenderingContext) {
+        throw new Error("Method not implemented.");
     }
 }

@@ -1,18 +1,20 @@
-import { Component } from "./Component";
 import { Vector3 } from "../Math/Vector";
+import BehaviorComponent from "./BehaviorComponent";
 
-export class TransformComponent extends Component {
+export default class TransformComponent extends BehaviorComponent {
     private position: Vector3;
+    private scale: Vector3;
+    private rotation: Vector3;
 
-    public GetScenePosition(): Vector3 {
+    public GetPosition(): Vector3 {
         return this.position;
     }
 
-    public SetScenePosition(position: Vector3) {
+    public SetPosition(position: Vector3) {
         this.position = position;
     }
 
-    public Update(deltaTime: number) {
+    public override Update(deltaTime: number) {
         
     }
 }

@@ -1,10 +1,10 @@
-import { Component } from "./Components/Component";
-import { StaticMeshComponent } from "./Components/StaticMeshComponent";
-import { TransformComponent } from "./Components/TransformComponent";
+import Component from "./Components/Component";
+import StaticMeshComponent from "./Components/StaticMeshComponent";
+import TransformComponent from "./Components/TransformComponent";
 
 
 
-export class Entity {
+export default class Entity {
     private components: Component[];
 
     public constructor() {
@@ -27,7 +27,7 @@ export class Entity {
     // in the App Update() loop.
     public Update(deltaTime: number) {
         for (const component of this.components) {
-            component.Update(deltaTime);
+            // component.Update(deltaTime);
         }
     }
 }

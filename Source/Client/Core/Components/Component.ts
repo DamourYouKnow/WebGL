@@ -1,14 +1,10 @@
-import { Entity } from "../Entity";
+import Entity from "../Entity";
 
-export abstract class Component {
+export default abstract class Component {
     private entity: Entity;
 
     public constructor(entity: Entity) {
         this.entity = entity;
-    }
-
-    public Update(deltaTime: number) {
-
     }
 
     public SetEntity(entity: Entity) {
