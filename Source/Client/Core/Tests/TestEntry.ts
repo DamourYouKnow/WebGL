@@ -1,9 +1,12 @@
-import matrixModule from "./Modules/Matrix";
+import matrixGroup from "./Modules/MatrixTests";
 
 const testModules = [
-    matrixModule
+    matrixGroup
 ];
 
-testModules.forEach((testModule) => testModule.Execute());
+testModules.forEach((testModule) => {
+    testModule.Execute();
+    console.log(testModule.Output().join('\n'));
+});
 
 

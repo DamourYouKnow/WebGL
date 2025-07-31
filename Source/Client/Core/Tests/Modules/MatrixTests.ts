@@ -1,7 +1,7 @@
-import { TestModule } from "../TestModule";
+import { TestGroup } from "../TestGroup";
 import { Matrix4 } from "../../Math/Matrix";
 
-const matrixModule = new TestModule("Matrices");
+const matrixGroup = new TestGroup("Matrices");
 
 const matrixA = new Matrix4([
     1, 2, 3, 4,
@@ -24,13 +24,13 @@ const invertibleMatrix = new Matrix4([
     -1, 1, 1, 1
 ]);
 
-matrixModule.CreateUnit("Determinant").Add(
+matrixGroup.AddGroup("Determinant").AddTest(
     "Calculate determinant of invertible matrix",
     () => invertibleMatrix.Determinant(),
     (result: number) => result == -16
 );
 
-matrixModule.CreateUnit("Inverse").Add(
+matrixGroup.AddGroup("Inverse").AddTest(
     "Calculate inverse of an invertible matrix",
     () => invertibleMatrix.Inverse(),
     (result: Matrix4 | null) => {
@@ -44,7 +44,7 @@ matrixModule.CreateUnit("Inverse").Add(
 );
 
 
-matrixModule.CreateUnit("Product").Add(
+matrixGroup.AddGroup("Product").AddTest(
     "Calculate product of two 4x4 matrices",
     () => matrixA.Multiply(matrixB),
     (result: Matrix4) => {
@@ -57,4 +57,4 @@ matrixModule.CreateUnit("Product").Add(
     } 
 );
 
-export default matrixModule;
+export default matrixGroup;
