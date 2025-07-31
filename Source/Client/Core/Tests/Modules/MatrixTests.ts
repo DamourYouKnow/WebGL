@@ -3,6 +3,8 @@ import { Matrix4 } from "../../Math/Matrix";
 
 const matrixGroup = new TestGroup("Matrices");
 
+const matrix4Group = matrixGroup.AddGroup("Matrix 4x4");
+
 const matrixA = new Matrix4([
     1, 2, 3, 4,
     5, 6, 7, 8,
@@ -24,13 +26,13 @@ const invertibleMatrix = new Matrix4([
     -1, 1, 1, 1
 ]);
 
-matrixGroup.AddGroup("Determinant").AddTest(
+matrix4Group.AddGroup("Determinant").AddTest(
     "Calculate determinant of invertible matrix",
     () => invertibleMatrix.Determinant(),
     (result: number) => result == -16
 );
 
-matrixGroup.AddGroup("Inverse").AddTest(
+matrix4Group.AddGroup("Inverse").AddTest(
     "Calculate inverse of an invertible matrix",
     () => invertibleMatrix.Inverse(),
     (result: Matrix4 | null) => {
@@ -44,7 +46,7 @@ matrixGroup.AddGroup("Inverse").AddTest(
 );
 
 
-matrixGroup.AddGroup("Product").AddTest(
+matrix4Group.AddGroup("Multiply").AddTest(
     "Calculate product of two 4x4 matrices",
     () => matrixA.Multiply(matrixB),
     (result: Matrix4) => {

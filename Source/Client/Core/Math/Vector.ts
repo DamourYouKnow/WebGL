@@ -3,6 +3,7 @@ export class Vector2 {
     public y: number;
 
     public static Zero = new Vector2(0.0, 0.0);
+    public static Unit = new Vector2(1.0, 1.0);
     public static Right = new Vector2(1.0, 0.0);
     public static Left = new Vector2(-1.0, 0.0);
     public static Up = new Vector2(0.0, 1.0);
@@ -82,6 +83,7 @@ export class Vector3 {
     public z: number;
 
     public static Zero = new Vector3(0.0, 0.0, 0.0);
+    public static Unit = new Vector3(1.0, 1.0, 1.0);
     public static Right = new Vector3(1.0, 0.0, 0.0);
     public static Left = new Vector3(-1.0, 0.0, 0.0);
     public static Up = new Vector3(0.0, 1.0, 0.0);

@@ -20,17 +20,17 @@ let failingTestCase = new TestGroup("Test").AddTest(
 
 testGroup.AddGroup("Test cases")
 .AddTest(
-    "Executor should execute user code",
+    "Executor executes user code",
     () => {
         wasExecuted = true;
     },
     () => wasExecuted
 ).AddTest(
-    "Test case should pass if all evaluators resolve to true",
+    "Test case passes if all evaluators resolve to true",
     () => passingTestCase.Execute(),
     () => passingTestCase.Success(),
 ).AddTest(
-    "Test case should fail if any evaluator resolves to false",
+    "Test case fails if any evaluator resolves to false",
     () => failingTestCase.Execute(),
     () => !failingTestCase.Success()
 );
@@ -55,7 +55,7 @@ const passingTestGroup = new TestGroup("Test group").AddTest(
 
 const testGroupTestGroup = testGroup.AddGroup("Test groups")
 .AddTest(
-    "Test group should pass if all test cases and child groups pass",
+    "Test group passes if all test cases and child groups pass",
     () => passingTestGroup.Execute(),
     () => passingChildGroup.Success() 
 );
@@ -67,7 +67,7 @@ let failingTestGroup = new TestGroup("Test group").AddTest(
 ).AddGroup(failingChildGroup);
 
 testGroupTestGroup.AddTest(
-    "Test group should fail if any child group fails",
+    "Test group fails if any child group fails",
     () => failingTestGroup.Execute(),
     () => !failingChildGroup.Success()
 )
@@ -79,7 +79,7 @@ failingTestGroup = new TestGroup("Test group").AddTest(
 ).AddGroup(passingChildGroup)
 
 testGroupTestGroup.AddTest(
-    "Test group should fail if any test case fails",
+    "Test group fails if any test case fails",
     () => failingTestGroup.Execute(),
     () => !failingTestGroup.Success()
 );
