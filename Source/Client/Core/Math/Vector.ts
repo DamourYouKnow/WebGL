@@ -160,4 +160,8 @@ export class Vector3 {
     public CrossProduct(other: Vector3): Vector3 {
         return Vector3.CrossProduct(this, other);
     }
+
+    public toString(): string {
+        return `{x=${this.x}, y=${this.y}, z=${this.z}}`;
+    }
 }
