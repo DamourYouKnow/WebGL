@@ -1,7 +1,9 @@
 import matrixGroup from "./Modules/MatrixTests";
+import testGroup from "./Modules/TestTests";
 
 const testModules = [
-    matrixGroup
+    matrixGroup,
+    testGroup
 ];
 
 testModules.forEach((testModule) => {
