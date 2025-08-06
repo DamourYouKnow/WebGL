@@ -3,51 +3,64 @@ import { ShaderProgram } from './Shader';
 
 type Dimension = 2 | 3;
 
+interface MeshData {
+    vertices: Float32Array | number[],
+    indices?: Uint16Array | number[],
+    textureCoordinates?: Float32Array | number[]
+}
+
 export class Mesh {
     private dimension: Dimension;
+
     private vertices: Float32Array;
     private indices?: Uint16Array;
+    private textureCoordinates: Float32Array;
+
     private vertexBuffer: WebGLBuffer;
     private indexBuffer?: WebGLBuffer;
+    private textureBuffer?: WebGLBuffer;
+
     private shaderProgram: ShaderProgram;
 
     public constructor(
         dimension: Dimension, 
-        vertices: Float32Array, 
-        indices?: Uint16Array
+        meshData: MeshData,
     );
 
     public constructor(
-        dimension: Dimension,
-        vertices: number[], 
-        indices?: number[]
-    );
-
-    public constructor(
-        dimension: Dimension,
-        vertices: Float32Array | number[], 
-        indices?: Uint16Array | number[]
+        dimension: Dimension, 
+        meshData: MeshData,
     ) {
         this.dimension = dimension;
 
-        if (vertices instanceof Float32Array) {
-            this.vertices = vertices;
-        }
-        else {
-            this.vertices = new Float32Array(vertices);
-        }
+        // Create vertex buffer
+        this.vertices = meshData.vertices instanceof Float32Array ?
+            meshData.vertices : new Float32Array(meshData.vertices);
 
         this.vertexBuffer = this.createVertexBuffer(App.Instance.Context);
 
-        if (indices) {
-            if (indices instanceof Uint16Array) {
-                this.indices = indices;
-            }
-            else {
-                this.indices = new Uint16Array(indices);
-            }
+        // Create index buffer if applicable
+        if (meshData.indices) {
+            this.indices = meshData.indices instanceof Uint16Array ?
+                meshData.indices : new Uint16Array(meshData.indices);
 
             this.indexBuffer = this.createIndexBuffer(App.Instance.Context);
+        }
+
+        // Create texture buffer if applicable
+        if (meshData.textureCoordinates) {
+            if (meshData.textureCoordinates instanceof Float32Array) {
+                this.textureCoordinates = meshData.textureCoordinates;
+            }
+            else {
+                this.textureCoordinates = new Float32Array(
+                    meshData.textureCoordinates
+                );
+            }
+
+            this.textureBuffer = this.createTextureBuffer(
+                App.Instance.Context
+            );
         }
     }
     
@@ -120,6 +133,10 @@ export class Mesh {
         return indexBuffer;
     }
 
+    private createTextureBuffer(contenxt: WebGLRenderingContext): WebGLBuffer {
+        throw Error("Not implemented");
+    }
+
     public Render(context: WebGLRenderingContext) {
         context.bindBuffer(context.ARRAY_BUFFER, this.vertexBuffer);
 
@@ -164,6 +181,18 @@ export class Mesh {
     }
 }
 
+export class Mesh2 extends Mesh {
+    public constructor(meshData: MeshData) {
+        super(2, meshData);
+    }
+}
+
+export class Mesh3 extends Mesh {
+    public constructor(meshData) {
+        super(3, meshData);
+    }
+}
+
 export const Shapes = {
     triangle: function() {
         throw Error('Not implemented');
@@ -182,7 +211,10 @@ export const Shapes = {
         ]);
 
         // TODO: Use index buffer.
-        return new Mesh(2, vertices, indices);
+        return new Mesh2({
+            vertices: vertices,
+            indices: indices
+        });
     },
     circle: function(radius: number=0.5, vertices: number=64) {
         // TODO: Assert vertices >= 3
@@ -206,7 +238,10 @@ export const Shapes = {
             currentAngle += angleStep;
         }
 
-        return new Mesh(2, verticeArray, indexArray);
+        return new Mesh2({
+            vertices: verticeArray,
+            indices: indexArray
+        });
     },
     box: function(xLength: number=0.5, yLength: number=0.5, zLength: number=0.5) {
         const halfX = xLength / 2;
@@ -233,6 +268,9 @@ export const Shapes = {
             4, 5, 6, 5, 7, 6 // Top (counter-clockwise)
         ]);
 
-        return new Mesh(3, vertices, indices);
+        return new Mesh3({
+            vertices: vertices,
+            indices: indices
+        });
     }
 };
