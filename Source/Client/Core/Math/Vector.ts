@@ -2,13 +2,12 @@ export class Vector2 {
     public x: number;
     public y: number;
 
-    public static Zero = new Vector2(0.0, 0.0);
-    public static Unit = new Vector2(1.0, 1.0);
-    public static Right = new Vector2(1.0, 0.0);
-    public static Left = new Vector2(-1.0, 0.0);
-    public static Up = new Vector2(0.0, 1.0);
-    public static Down = new Vector2(0.0, -1.0);
-
+    public static readonly Zero = new Vector2(0.0, 0.0);
+    public static readonly Unit = new Vector2(1.0, 1.0);
+    public static readonly Right = new Vector2(1.0, 0.0);
+    public static readonly Left = new Vector2(-1.0, 0.0);
+    public static readonly Up = new Vector2(0.0, 1.0);
+    public static readonly Down = new Vector2(0.0, -1.0);
 
     public constructor(x: number=0.0, y: number=0.0) {
         this.x = x;
@@ -82,14 +81,14 @@ export class Vector3 {
     public y: number;
     public z: number;
 
-    public static Zero = new Vector3(0.0, 0.0, 0.0);
-    public static Unit = new Vector3(1.0, 1.0, 1.0);
-    public static Right = new Vector3(1.0, 0.0, 0.0);
-    public static Left = new Vector3(-1.0, 0.0, 0.0);
-    public static Up = new Vector3(0.0, 1.0, 0.0);
-    public static Down = new Vector3(0.0, -1.0, 0.0);
-    public static Forward = new Vector3(0.0, 0.0, 1.0);
-    public static Backward = new Vector3(0.0, 0.0, -1.0);
+    public static readonly Zero = new Vector3(0.0, 0.0, 0.0);
+    public static readonly Unit = new Vector3(1.0, 1.0, 1.0);
+    public static readonly Right = new Vector3(1.0, 0.0, 0.0);
+    public static readonly Left = new Vector3(-1.0, 0.0, 0.0);
+    public static readonly Up = new Vector3(0.0, 1.0, 0.0);
+    public static readonly Down = new Vector3(0.0, -1.0, 0.0);
+    public static readonly Forward = new Vector3(0.0, 0.0, 1.0);
+    public static readonly Backward = new Vector3(0.0, 0.0, -1.0);
     
     public constructor(x: number=0.0, y: number=0.0, z: number=0.0) {
         this.x = x;

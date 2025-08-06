@@ -31,12 +31,12 @@ export class Matrix {
 }
 
 export class Matrix2 extends Matrix {
-    public static Zero = new Matrix2([
+    public static readonly Zero = new Matrix2([
         0, 0,
         0, 0
     ]);
     
-    public static Identity = new Matrix2([
+    public static readonly Identity = new Matrix2([
         1, 0,
         0, 1
     ]);
@@ -93,19 +93,19 @@ export class Matrix2 extends Matrix {
 }
 
 export class Matrix3 extends Matrix {
-    public static Zero = new Matrix3([
+    public static readonly Zero = new Matrix3([
         0, 0, 0,
         0, 0, 0,
         0, 0, 0
     ]);
     
-    public static Identity = new Matrix3([
+    public static readonly Identity = new Matrix3([
         1, 0, 0,
         0, 1, 0,
         0, 0, 1
     ]);
 
-    public static Orthographic = new Matrix3([
+    public static readonly Orthographic = new Matrix3([
         1, 0, 0,
         0, 1, 0,
         0, 0, 0
@@ -182,21 +182,21 @@ export class Matrix3 extends Matrix {
 }
 
 export class Matrix4 extends Matrix {
-    public static Zero = new Matrix4([
+    public static readonly Zero = new Matrix4([
         0, 0, 0, 0,
         0, 0, 0, 0,
         0, 0, 0, 0,
         0, 0, 0, 0
     ]);
     
-    public static Identity = new Matrix4([
+    public static readonly Identity = new Matrix4([
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
         0, 0, 0, 1
     ]);
 
-    public static Orthographic = new Matrix4([
+    public static readonly Orthographic = new Matrix4([
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 0, 0,
