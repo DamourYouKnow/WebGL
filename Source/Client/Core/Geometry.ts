@@ -8,6 +8,9 @@ export class Mesh {
     private indexBuffer?: WebGLBuffer;
     private shaderProgram: ShaderProgram;
 
+    public constructor(vertices: Float32Array, indices?: Uint16Array);
+    public constructor(vertices: number[], indices?: number[]);
+
     public constructor(
         vertices: Float32Array | number[], 
         indices?: Uint16Array | number[]
