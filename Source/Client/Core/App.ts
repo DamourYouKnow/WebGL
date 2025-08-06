@@ -2,6 +2,7 @@ import { Shapes } from "./Geometry";
 import { Matrix4 } from "./Math/Matrix";
 import { Vector3 } from "./Math/Vector";
 import { ShaderProgram } from "./Shader";
+import { InputManager } from "./InputManager";
 
 let webgl: WebGLRenderingContext = null;
 
@@ -18,6 +19,8 @@ export class App {
         webgl = this.Context;
 
         App.Instance = this;
+
+        const test = new InputManager(this.canvas);
     }
 
     public Update(deltaTime: number) {
