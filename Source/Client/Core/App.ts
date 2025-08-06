@@ -50,7 +50,7 @@ async function colorTest() {
 
     const shaderProgram = await ShaderProgram.Load(
         webgl,
-        'color_vertex.glsl', 
+        '2D/color_vertex.glsl', 
         'color_fragment.glsl'
     );
 
@@ -113,11 +113,11 @@ async function matrixTest() {
 
     const app = new App(canvas);
     
-    const shape = Shapes.rectangle(0.5, 0.5);
+    const shape = Shapes.box(0.5, 0.5, 0.5);
 
     const shaderProgram = await ShaderProgram.Load(
         webgl,
-        'basic_vertex.glsl', 
+        '3D/basic_vertex.glsl', 
         'basic_fragment.glsl'
     );
 
@@ -163,7 +163,7 @@ async function matrixTest() {
     );
 
     const viewMatrix = Matrix4.CreateView(
-        new Vector3(5, 0, -5),
+        new Vector3(3, 3, -3),
         Vector3.Up,
         Vector3.Zero
     );

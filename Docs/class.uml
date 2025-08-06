@@ -1,7 +1,12 @@
 @startuml
 
 abstract class App {
+    -resourceManager: ResourceManager
+}
 
+class ResourceManager {
+    -app: App
+    -resources: Map<ResourceType, Resource[]>
 }
 
 class ConcreteApp {
@@ -92,6 +97,9 @@ Resource <|-- Texture
 Resource <|-- Material
 Resource <|-- Shader
 Resource <|-- ShaderProgram
+
+App "1" *-- "1" ResourceManager
+ResourceManager "1" *-- "*" Resource
 
 App "1" *-- "*" Scene
 Scene "1" *-- "*" Entity

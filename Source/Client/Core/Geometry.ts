@@ -1,20 +1,35 @@
 import { App } from './App'
 import { ShaderProgram } from './Shader';
 
+type Dimension = 2 | 3;
+
 export class Mesh {
+    private dimension: Dimension;
     private vertices: Float32Array;
     private indices?: Uint16Array;
     private vertexBuffer: WebGLBuffer;
     private indexBuffer?: WebGLBuffer;
     private shaderProgram: ShaderProgram;
 
-    public constructor(vertices: Float32Array, indices?: Uint16Array);
-    public constructor(vertices: number[], indices?: number[]);
+    public constructor(
+        dimension: Dimension, 
+        vertices: Float32Array, 
+        indices?: Uint16Array
+    );
 
     public constructor(
+        dimension: Dimension,
+        vertices: number[], 
+        indices?: number[]
+    );
+
+    public constructor(
+        dimension: Dimension,
         vertices: Float32Array | number[], 
         indices?: Uint16Array | number[]
     ) {
+        this.dimension = dimension;
+
         if (vertices instanceof Float32Array) {
             this.vertices = vertices;
         }
@@ -115,7 +130,7 @@ export class Mesh {
 
         context.vertexAttribPointer(
             positionAttribute, 
-            2,
+            this.dimension,
             context.FLOAT, 
             false, 
             0, 
@@ -167,7 +182,7 @@ export const Shapes = {
         ]);
 
         // TODO: Use index buffer.
-        return new Mesh(vertices, indices);
+        return new Mesh(2, vertices, indices);
     },
     circle: function(radius: number=0.5, vertices: number=64) {
         // TODO: Assert vertices >= 3
@@ -191,6 +206,33 @@ export const Shapes = {
             currentAngle += angleStep;
         }
 
-        return new Mesh(verticeArray, indexArray);
+        return new Mesh(2, verticeArray, indexArray);
+    },
+    box: function(xLength: number=0.5, yLength: number=0.5, zLength: number=0.5) {
+        const halfX = xLength / 2;
+        const halfY = yLength / 2;
+        const halfZ = zLength / 2;
+
+        const vertices = new Float32Array([
+            -halfX, -halfY, -halfZ, // Bottom-Left-Front
+            halfX, -halfY, -halfZ, // Bottom-Right-Front
+            -halfX, -halfY, halfZ, // Bottom-Left-Back
+            halfX, -halfY, halfZ, // Bottom-Right-Back
+            -halfX, halfY, -halfZ, // Top-Left-Front
+            halfX, halfY, -halfZ, // Top-Right-Front
+            -halfX, halfY, halfZ, // Top-Left-Back
+            halfX, halfY, halfZ // Top-Right-Back 
+        ]);
+
+        const indices = new Uint16Array([
+            0, 2, 1, 1, 2, 3, // Bottom (clockwise)
+            0, 1, 4, 1, 5, 4, // Front (counter-clockwise)
+            2, 6, 3, 3, 6, 7, // Back (clockwise)
+            0, 4, 2, 2, 4, 6, // Left (clockwise)
+            1, 3, 5, 3, 7, 5, // Right (counter-clockwise)
+            4, 5, 6, 5, 7, 6 // Top (counter-clockwise)
+        ]);
+
+        return new Mesh(3, vertices, indices);
     }
 };
