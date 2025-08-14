@@ -1,4 +1,5 @@
 import { App } from './App'
+import { Vector3 } from './Math/Vector';
 import { ShaderProgram } from './Shader';
 
 type Dimension = 2 | 3;
@@ -272,5 +273,119 @@ export const Shapes = {
             vertices: vertices,
             indices: indices
         });
+    },
+    sphere: function(radius: number=0.5, slices: number=16): Mesh3 {
+        const vertexCount = 2 + (2 * slices * slices);
+        
+        const indexSize = (slices * 2 * 3) // Top and bottom triangles
+            + ((slices - 1) * (2 * slices) * 3 * 2); // Middle quads
+        
+        const vertices = new Float32Array(vertexCount * 3);
+        const indices = new Uint16Array(indexSize);
+
+        const angleStep = (2 * Math.PI) / slices;
+        
+        // Populate vertices
+        // Top vertex
+        vertices[0] = 0.0
+        vertices[1] = radius
+        vertices[2] = 0.0
+        
+        // Middle vertices
+        const azimuthSlices = slices;
+        const azimuthIndices = (2 * slices);
+        
+        let currentVertexIndex = 3;
+        let currentAzimuth = 0.0;
+        let currentInclination = (Math.PI / 2.0) - angleStep;
+
+        for (let azimuthSlice = 0; azimuthSlice < azimuthSlices; azimuthSlice++) {
+            for (let azimuthIndex = 0; azimuthIndex < azimuthIndices; azimuthIndex++) {
+                const vertexPosition = sphericalToCartesian(
+                    radius, 
+                    currentInclination, 
+                    currentAzimuth
+                );
+
+                vertices[currentVertexIndex++] = vertexPosition.x;
+                vertices[currentVertexIndex++] = vertexPosition.y;
+                vertices[currentVertexIndex++] = vertexPosition.z;
+
+                currentAzimuth += angleStep;
+            }
+
+            currentInclination -= angleStep;
+            
+            // Should be 0 when inner loop terminates
+            // Forcing back to 0 to ensure floating point precision
+            currentAzimuth = 0.0; 
+        }
+
+        // Bottom vertex
+        vertices[(vertexCount * 3) - 3] = 0.0;
+        vertices[(vertexCount * 3) - 2] = -radius;
+        vertices[(vertexCount * 3) - 1] = 0.0;
+
+        // Populate indices
+        // Helper function for calculating right-adjacent index
+        const adjacentVertexIndex = (vertexIndex: number): number => {
+            const floor = Math.floor((vertexIndex - 1) / azimuthIndices);
+            const azimuthStartIndex = (floor * 8) + 1;
+
+            return (vertexIndex % azimuthIndices) + azimuthStartIndex;
+        };
+
+        // Top triangles
+        let currentIndex = 0;
+
+        for (let vertexIndex = 1; vertexIndex <= azimuthIndices; vertexIndex++) {
+            indices[currentIndex++] = 0;
+            indices[currentIndex++] = vertexIndex;
+            indices[currentIndex++] = adjacentVertexIndex(vertexIndex);
+        }
+
+        // Middle quads
+        for (
+            let vertexIndex = 1; 
+            vertexIndex <= vertexCount - azimuthIndices - 2;
+            vertexIndex++
+        ) {
+            indices[currentIndex++] = vertexIndex;
+            indices[currentIndex++] = vertexIndex + azimuthIndices;
+            indices[currentIndex++] = adjacentVertexIndex(vertexIndex + azimuthSlices);
+
+            indices[currentIndex++] = vertexIndex;
+            indices[currentIndex++] = adjacentVertexIndex(vertexIndex + azimuthSlices);
+            indices[currentIndex++] = adjacentVertexIndex(vertexIndex + 1);
+        }
+
+
+        // Bottom triangles
+        for (
+            let vertexIndex = vertexCount - azimuthIndices - 1;
+            vertexIndex < vertexCount - 1;
+            vertexIndex++
+        ) {
+            indices[currentIndex++] = vertexIndex;
+            indices[currentIndex++] = vertexCount - 1;
+            indices[currentIndex++] = adjacentVertexIndex(vertexIndex);
+        }
+
+        return new Mesh3({
+            vertices: vertices,
+            indices: indices
+        });
     }
 };
+
+function sphericalToCartesian(
+    radius: number, 
+    inclinationRadians: number,
+    azimuthRadians: number
+): Vector3 {
+    return new Vector3(
+        radius * Math.sin(inclinationRadians) * Math.cos(azimuthRadians),
+        radius * Math.sin(inclinationRadians) * Math.sin(azimuthRadians),
+        radius * Math.cos(inclinationRadians)
+    );
+}
