@@ -2,7 +2,7 @@ import { Shapes } from "./Geometry";
 import { Matrix4 } from "./Math/Matrix";
 import { Vector3 } from "./Math/Vector";
 import { ShaderProgram } from "./Shader";
-import { InputManager } from "./InputManager";
+import { InputManager, Key } from "./InputManager";
 
 let webgl: WebGLRenderingContext = null;
 
@@ -12,6 +12,8 @@ export class App {
     // TODO: Encapsulate, make private
     public Context: WebGLRenderingContext = null;
     private canvas: HTMLCanvasElement;
+    
+    public readonly Input: InputManager;
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
@@ -20,7 +22,7 @@ export class App {
 
         App.Instance = this;
 
-        const test = new InputManager(this.canvas);
+        this.Input = new InputManager(canvas);
     }
 
     public Update(deltaTime: number) {
@@ -115,6 +117,9 @@ async function matrixTest() {
     if (!canvas) return;
 
     const app = new App(canvas);
+
+    app.Input.OnKeyDown(Key.W, () => console.log('W key pressed'));
+    app.Input.OnKeyUp(Key.W, () => console.log('W key released'));
     
     const shape = Shapes.box(0.5, 0.5, 0.5);
 
