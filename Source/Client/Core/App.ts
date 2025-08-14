@@ -121,7 +121,7 @@ async function matrixTest() {
     app.Input.OnKeyDown(Key.W, () => console.log('W key pressed'));
     app.Input.OnKeyUp(Key.W, () => console.log('W key released'));
     
-    const shape = Shapes.sphere(1, 10);
+    const shape = Shapes.sphere(1, 16);
 
     const shaderProgram = await ShaderProgram.Load(
         webgl,
@@ -171,7 +171,7 @@ async function matrixTest() {
     );
 
     const viewMatrix = Matrix4.CreateView(
-        new Vector3(3, 3, -3),
+        new Vector3(0, 0, -4),
         Vector3.Up,
         Vector3.Zero
     );

@@ -277,7 +277,7 @@ export const Shapes = {
     sphere: function(radius: number=0.5, slices: number=16): Mesh3 {
         const vertexCount = 2 + (2 * slices * slices);
         
-        const indexSize = (slices * 2 * 3) // Top and bottom triangles
+        const indexSize = (slices * 2 * 3 * 2) // Top and bottom triangles
             + ((slices - 1) * (2 * slices) * 3 * 2); // Middle quads
         
         const vertices = new Float32Array(vertexCount * 3);
@@ -347,15 +347,15 @@ export const Shapes = {
         // Middle quads
         for (
             let vertexIndex = 1; 
-            vertexIndex <= vertexCount - azimuthIndices - 2;
+            vertexIndex <= vertexCount - (azimuthIndices * 2) - 2;
             vertexIndex++
         ) {
             indices[currentIndex++] = vertexIndex;
             indices[currentIndex++] = vertexIndex + azimuthIndices;
-            indices[currentIndex++] = adjacentVertexIndex(vertexIndex + azimuthSlices);
+            indices[currentIndex++] = adjacentVertexIndex(vertexIndex + azimuthIndices);
 
             indices[currentIndex++] = vertexIndex;
-            indices[currentIndex++] = adjacentVertexIndex(vertexIndex + azimuthSlices);
+            indices[currentIndex++] = adjacentVertexIndex(vertexIndex + azimuthIndices);
             indices[currentIndex++] = adjacentVertexIndex(vertexIndex + 1);
         }
 
