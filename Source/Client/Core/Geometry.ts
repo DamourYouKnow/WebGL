@@ -283,7 +283,7 @@ export const Shapes = {
         const vertices = new Float32Array(vertexCount * 3);
         const indices = new Uint16Array(indexSize);
 
-        const angleStep = (2 * Math.PI) / slices;
+        const angleStep = Math.PI / slices;
         
         // Populate vertices
         // Top vertex
@@ -297,7 +297,7 @@ export const Shapes = {
         
         let currentVertexIndex = 3;
         let currentAzimuth = 0.0;
-        let currentInclination = (Math.PI / 2.0) - angleStep;
+        let currentInclination = angleStep;
 
         for (let azimuthSlice = 0; azimuthSlice < azimuthSlices; azimuthSlice++) {
             for (let azimuthIndex = 0; azimuthIndex < azimuthIndices; azimuthIndex++) {
@@ -314,7 +314,7 @@ export const Shapes = {
                 currentAzimuth += angleStep;
             }
 
-            currentInclination -= angleStep;
+            currentInclination += angleStep;
             
             // Should be 0 when inner loop terminates
             // Forcing back to 0 to ensure floating point precision
@@ -330,7 +330,7 @@ export const Shapes = {
         // Helper function for calculating right-adjacent index
         const adjacentVertexIndex = (vertexIndex: number): number => {
             const floor = Math.floor((vertexIndex - 1) / azimuthIndices);
-            const azimuthStartIndex = (floor * 8) + 1;
+            const azimuthStartIndex = (floor * azimuthIndices) + 1;
 
             return (vertexIndex % azimuthIndices) + azimuthStartIndex;
         };
@@ -347,7 +347,7 @@ export const Shapes = {
         // Middle quads
         for (
             let vertexIndex = 1; 
-            vertexIndex <= vertexCount - (azimuthIndices * 2) - 2;
+            vertexIndex <= vertexCount - azimuthIndices - 2;
             vertexIndex++
         ) {
             indices[currentIndex++] = vertexIndex;
@@ -356,7 +356,7 @@ export const Shapes = {
 
             indices[currentIndex++] = vertexIndex;
             indices[currentIndex++] = adjacentVertexIndex(vertexIndex + azimuthIndices);
-            indices[currentIndex++] = adjacentVertexIndex(vertexIndex + 1);
+            indices[currentIndex++] = adjacentVertexIndex(vertexIndex);
         }
 
 
