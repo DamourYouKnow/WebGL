@@ -10,12 +10,13 @@ export default class TestApp extends App {
         this.Input.OnKeyDown(Key.W, () => console.log('W key pressed'));
         this.Input.OnKeyUp(Key.W, () => console.log('W key released'));
     
-        const shape = Shapes.box(2, 1, 1);
+        const radius = 2;
+        const shape = Shapes.sphere(radius, 32);
 
         const shaderProgram = await ShaderProgram.Load(
             this.Context,
-            '3D/basic_vertex.glsl', 
-            'basic_fragment.glsl'
+            '3D/color_vertex.glsl', 
+            'color_fragment.glsl'
         );
 
         shape.SetShaderProgram(shaderProgram);
@@ -36,6 +37,42 @@ export default class TestApp extends App {
             shaderProgram.GetProgram(),
             "u_modelViewMatrix"
         );
+
+        // Add some color for fun
+        const vertices = Array.from(shape.Vertices());
+        const colors = vertices.reduce((acc, cur, i) => {
+            const value = (1 * Math.abs(cur)) / radius;
+            if ((i + 1) % 3 == 0) {
+                return [...acc, value, 1];
+            }
+            return [...acc, value];
+        }, []);
+
+        const colorLocation = this.Context.getAttribLocation(
+            shaderProgram.GetProgram(),
+            "a_color"
+        );
+
+        const colorBuffer = this.Context.createBuffer();
+        this.Context.bindBuffer(
+            this.Context.ARRAY_BUFFER,
+            colorBuffer
+        );
+        this.Context.bufferData(
+            this.Context.ARRAY_BUFFER,
+            new Float32Array(colors),
+            this.Context.STATIC_DRAW
+        );
+        this.Context.vertexAttribPointer(
+            colorLocation,
+            4,
+            this.Context.FLOAT,
+            false,
+            0,
+            0
+        );
+        this.Context.enableVertexAttribArray(colorLocation);
+
 
         this.Context.useProgram(shaderProgram.GetProgram());
 
@@ -62,7 +99,7 @@ export default class TestApp extends App {
         );
 
         const viewMatrix = Matrix4.CreateView(
-            new Vector3(2, 2, -6),
+            new Vector3(2, 2, -8),
             Vector3.Up,
             Vector3.Zero
         );
