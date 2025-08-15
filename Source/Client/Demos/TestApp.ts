@@ -20,10 +20,12 @@ export default class TestApp extends App {
 
         shape.SetShaderProgram(shaderProgram);
 
+        /*
         const positionLocation = this.Context.getAttribLocation(
             shaderProgram.GetProgram(), 
             "a_position"
         );
+        */
 
         const projectionMatrixLocation = this.Context.getUniformLocation(
             shaderProgram.GetProgram(),

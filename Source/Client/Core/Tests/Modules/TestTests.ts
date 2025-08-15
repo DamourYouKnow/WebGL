@@ -4,19 +4,19 @@ const testGroup = new TestGroup("Tests");
 
 let wasExecuted = false;
 
-let passingTestCase = new TestGroup("Test").AddTest(
+const passingTestCase = new TestGroup("Test").AddTest(
     "Passing test",
     () => null,
     () => true,
     () => true
 );
 
-let failingTestCase = new TestGroup("Test").AddTest(
+const failingTestCase = new TestGroup("Test").AddTest(
     "Failing test",
     () => null,
     () => true,
     () => false
-)
+);
 
 testGroup.AddGroup("Test cases")
 .AddTest(
@@ -70,13 +70,13 @@ testGroupTestGroup.AddTest(
     "Test group fails if any child group fails",
     () => failingTestGroup.Execute(),
     () => !failingChildGroup.Success()
-)
+);
 
 failingTestGroup = new TestGroup("Test group").AddTest(
     "Test case",
     () => null,
     () => false
-).AddGroup(passingChildGroup)
+).AddGroup(passingChildGroup);
 
 testGroupTestGroup.AddTest(
     "Test group fails if any test case fails",

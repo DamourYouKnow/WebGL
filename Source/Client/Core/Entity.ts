@@ -23,8 +23,8 @@ export default class Entity {
 
     }
 
-    // TODO: Figure out how to encapsule so that this function can only be called
-    // in the App Update() loop.
+    // TODO: Figure out how to encapsule so that this function can only be 
+    // called in the App Update() loop.
     public Update(deltaTime: number) {
         for (const component of this.components) {
             // component.Update(deltaTime);

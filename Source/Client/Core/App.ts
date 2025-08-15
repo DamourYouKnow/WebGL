@@ -1,6 +1,4 @@
-import { InputManager, Key } from "./InputManager";
-
-let webgl: WebGLRenderingContext = null;
+import { InputManager } from "./InputManager";
 
 export abstract class App {
     public static Instance: App;
@@ -16,7 +14,6 @@ export abstract class App {
     constructor(canvas: HTMLCanvasElement) {
         this.Canvas = canvas;
         this.Context = canvas.getContext("webgl");
-        webgl = this.Context;
 
         App.Instance = this;
 
@@ -54,19 +51,8 @@ export abstract class App {
             this.Update(deltaTimeSeconds);
 
             requestAnimationFrame(updateLoop);
-        }
+        };
 
         requestAnimationFrame(updateLoop);
     }
-}
-
-function updateLoop(currentTimestampMilliseconds: number) {
-        const deltaTimeMilliseconds = currentTimestampMilliseconds
-            - this.previousTimestampMilliseconds;
-
-        const deltaTimeSeconds = deltaTimeMilliseconds * 0.001;
-        
-        this.Update(deltaTimeSeconds);
-
-        requestAnimationFrame(this.updateLoop);
 }

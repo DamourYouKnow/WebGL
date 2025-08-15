@@ -1,5 +1,6 @@
 // TODO: Digital and Axis input types
 
+// eslint-disable-next-line max-len
 // https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values
 export enum Key {
     Escape = "Escape",
@@ -121,7 +122,7 @@ export class InputManager {
 
     private keyCodes: Map<string, Key>;
 
-    private keyDownHandlers: Map<string, Handlers>
+    private keyDownHandlers: Map<string, Handlers>;
     private keyUpHandlers: Map<string, Handlers>;
     private keyHeldHandlers: Map<string, Handlers>;
 
@@ -174,7 +175,7 @@ export class InputManager {
 
     public OnKeyDown(key: Key | string, handler: () => void) {
         if (!this.keyDownHandlers.has(key)) {
-            this.keyDownHandlers.set(key, [])
+            this.keyDownHandlers.set(key, []);
         }
 
         this.keyDownHandlers.get(key).push(handler);
@@ -182,7 +183,7 @@ export class InputManager {
 
     public OnKeyUp(key: Key | string, handler: () => void) {
         if (!this.keyUpHandlers.has(key)) {
-            this.keyUpHandlers.set(key, [])
+            this.keyUpHandlers.set(key, []);
         }
 
         this.keyUpHandlers.get(key).push(handler);
@@ -190,7 +191,7 @@ export class InputManager {
 
     public OnKeyHeld(key: Key | string, handler: () => void) {
         if (!this.keyHeldHandlers.has(key)) {
-            this.keyHeldHandlers.set(key, [])
+            this.keyHeldHandlers.set(key, []);
         }
 
         this.keyHeldHandlers.get(key).push(handler);

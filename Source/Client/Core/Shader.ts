@@ -4,7 +4,7 @@ type ShaderType = "Vertex" | "Fragment";
 
 export class Shader {
     private context: WebGLRenderingContext;
-    private type: ShaderType
+    private type: ShaderType;
     private source: string;
     private shader: WebGLShader;
 

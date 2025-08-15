@@ -1,4 +1,4 @@
-import { Vector3 } from "./Vector"
+import { Vector3 } from "./Vector";
 
 type Tuple<
     T,
@@ -88,7 +88,8 @@ export class Matrix2 extends Matrix {
     }
 
     public Determinant(): number {
-        return (this.values[0] * this.values[3]) - (this.values[1] * this.values[2]);
+        return (this.values[0] * this.values[3]) 
+            - (this.values[1] * this.values[2]);
     }
 }
 
@@ -587,6 +588,6 @@ export class Matrix4 extends Matrix {
             | ${mat[4]} ${mat[5]} ${mat[6]} ${mat[7]} |
             | ${mat[8]} ${mat[9]} ${mat[10]} ${mat[11]} |
             | ${mat[12]} ${mat[13]} ${mat[14]} ${mat[15]} |
-        `
+        `;
     }
 }

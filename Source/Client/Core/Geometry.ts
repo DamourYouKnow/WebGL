@@ -1,4 +1,4 @@
-import { App } from './App'
+import { App } from './App';
 import { Vector3 } from './Math/Vector';
 import { ShaderProgram } from './Shader';
 
@@ -192,7 +192,7 @@ export class Mesh {
                 context.TRIANGLES,
                 0,
                 this.VertexCount()
-            )
+            );
         }
     }
 
@@ -263,7 +263,11 @@ export const Shapes = {
             indices: indexArray
         });
     },
-    box: function(xLength: number=0.5, yLength: number=0.5, zLength: number=0.5) {
+    box: function(
+        xLength: number=0.5, 
+        yLength: number=0.5, 
+        zLength: number=0.5
+    ) {
         const halfX = xLength / 2;
         const halfY = yLength / 2;
         const halfZ = zLength / 2;
@@ -308,9 +312,9 @@ export const Shapes = {
         
         // Populate vertices
         // Top vertex
-        vertices[0] = 0.0
-        vertices[1] = radius
-        vertices[2] = 0.0
+        vertices[0] = 0.0;
+        vertices[1] = radius;
+        vertices[2] = 0.0;
         
         // Middle vertices
         const azimuthSlices = slices;
@@ -320,8 +324,16 @@ export const Shapes = {
         let currentAzimuth = 0.0;
         let currentInclination = angleStep;
 
-        for (let azimuthSlice = 0; azimuthSlice < azimuthSlices; azimuthSlice++) {
-            for (let azimuthIndex = 0; azimuthIndex < azimuthIndices; azimuthIndex++) {
+        for (
+            let azimuthSlice = 0;
+            azimuthSlice < azimuthSlices;
+            azimuthSlice++
+        ) {
+            for (
+                let azimuthIndex = 0;
+                azimuthIndex < azimuthIndices;
+                azimuthIndex++
+            ) {
                 const vertexPosition = sphericalToCartesian(
                     radius, 
                     currentInclination, 
@@ -366,7 +378,11 @@ export const Shapes = {
         // Top triangles
         let currentIndex = 0;
 
-        for (let vertexIndex = 1; vertexIndex <= azimuthIndices; vertexIndex++) {
+        for (
+            let vertexIndex = 1;
+            vertexIndex <= azimuthIndices;
+            vertexIndex++
+        ) {
             indices[currentIndex++] = 0;
             indices[currentIndex++] = vertexIndex;
             indices[currentIndex++] = adjacentVertexIndex(vertexIndex);
@@ -380,10 +396,14 @@ export const Shapes = {
         ) {
             indices[currentIndex++] = vertexIndex;
             indices[currentIndex++] = vertexIndex + azimuthIndices;
-            indices[currentIndex++] = adjacentVertexIndex(vertexIndex + azimuthIndices);
+            indices[currentIndex++] = adjacentVertexIndex(
+                vertexIndex + azimuthIndices
+            );
 
             indices[currentIndex++] = vertexIndex;
-            indices[currentIndex++] = adjacentVertexIndex(vertexIndex + azimuthIndices);
+            indices[currentIndex++] = adjacentVertexIndex(
+                vertexIndex + azimuthIndices
+            );
             indices[currentIndex++] = adjacentVertexIndex(vertexIndex);
         }
 

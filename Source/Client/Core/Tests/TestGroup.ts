@@ -1,6 +1,6 @@
 const passSymbol = '✔';
 const failSymbol = '✖';
-const unknownSymbol = '?'
+const unknownSymbol = '?';
 
 type Executor = () => void;
 type Evaluator = (result: unknown, time?: number) => boolean;
@@ -66,8 +66,8 @@ export class TestGroup {
     private parentGroup: TestGroup | null = null;
     private childGroups: TestGroup[] = [];
 
-    private testCases: TestCase[] = []
-    private successfulTests: number = 0
+    private testCases: TestCase[] = [];
+    private successfulTests: number = 0;
     
     public constructor(label: string) {
         this.label = label;
@@ -128,7 +128,7 @@ export class TestGroup {
             return childGroup.Output(level + 1).map((childOuput) => {
                 return childOuput;
             }).join('\n');
-        })
+        });
 
         const passCount = `${this.successfulTests} / ${testsInGroup}`;
 
