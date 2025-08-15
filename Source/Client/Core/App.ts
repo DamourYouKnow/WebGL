@@ -11,6 +11,8 @@ export abstract class App {
     
     public readonly Input: InputManager;
 
+    private previousTimestamp: number = 0.0;
+
     constructor(canvas: HTMLCanvasElement) {
         this.Canvas = canvas;
         this.Context = canvas.getContext("webgl");
@@ -21,7 +23,7 @@ export abstract class App {
         this.Input = new InputManager(canvas);
         
         this.Initialize().then(() => {
-            
+            this.startUpdateLoop();
         });
     }
 
@@ -39,4 +41,32 @@ export abstract class App {
     public Render() {
         throw Error("Not implemented");
     }
+
+    private startUpdateLoop() {
+        const updateLoop = (currentTimestamp: number) => {
+            const deltaTimeMilliseconds = currentTimestamp 
+                - this.previousTimestamp;
+
+            this.previousTimestamp = currentTimestamp;
+
+            const deltaTimeSeconds = deltaTimeMilliseconds * 0.001;
+        
+            this.Update(deltaTimeSeconds);
+
+            requestAnimationFrame(updateLoop);
+        }
+
+        requestAnimationFrame(updateLoop);
+    }
+}
+
+function updateLoop(currentTimestampMilliseconds: number) {
+        const deltaTimeMilliseconds = currentTimestampMilliseconds
+            - this.previousTimestampMilliseconds;
+
+        const deltaTimeSeconds = deltaTimeMilliseconds * 0.001;
+        
+        this.Update(deltaTimeSeconds);
+
+        requestAnimationFrame(this.updateLoop);
 }
