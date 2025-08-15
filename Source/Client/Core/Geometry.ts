@@ -148,11 +148,13 @@ export class Mesh {
     }
 
     private createTextureBuffer(context: WebGLRenderingContext): WebGLBuffer {
-        throw Error("Not implemented");
+        // TODO
+        return null;
     }
 
     private createNormalBuffer(context: WebGLRenderingContext): WebGLBuffer {
-        throw Error("Not implemented");
+        // TODO
+        return null;
     }
 
     public Render(context: WebGLRenderingContext) {
@@ -266,6 +268,7 @@ export const Shapes = {
         const halfY = yLength / 2;
         const halfZ = zLength / 2;
 
+        // TODO: Duplicate vertices so we can add normals per vertex
         const vertices = new Float32Array([
             -halfX, -halfY, -halfZ, // Bottom-Left-Front
             halfX, -halfY, -halfZ, // Bottom-Right-Front
@@ -299,6 +302,7 @@ export const Shapes = {
         
         const vertices = new Float32Array(vertexCount * 3);
         const indices = new Uint16Array(indexSize);
+        const normals = new Float32Array(vertexCount * 3);
 
         const angleStep = Math.PI / slices;
         
@@ -324,9 +328,16 @@ export const Shapes = {
                     currentAzimuth
                 );
 
-                vertices[currentVertexIndex++] = vertexPosition.x;
-                vertices[currentVertexIndex++] = vertexPosition.y;
-                vertices[currentVertexIndex++] = vertexPosition.z;
+                const normal = vertexPosition.Normalize();
+
+                vertices[currentVertexIndex] = vertexPosition.x;
+                normals[currentVertexIndex++] = normal.x;
+
+                vertices[currentVertexIndex] = vertexPosition.y;
+                normals[currentVertexIndex++] = normal.y;
+
+                vertices[currentVertexIndex] = vertexPosition.z;
+                normals[currentVertexIndex++] = normal.z;
 
                 currentAzimuth += angleStep;
             }
@@ -390,7 +401,8 @@ export const Shapes = {
 
         return new Mesh3({
             vertices: vertices,
-            indices: indices
+            indices: indices,
+            normals: normals
         });
     }
 };
