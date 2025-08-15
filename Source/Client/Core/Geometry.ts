@@ -7,7 +7,8 @@ type Dimension = 2 | 3;
 interface MeshData {
     vertices: Float32Array | number[],
     indices?: Uint16Array | number[],
-    textureCoordinates?: Float32Array | number[]
+    textureCoordinates?: Float32Array | number[],
+    normals?: Float32Array | number[]
 }
 
 export class Mesh {
@@ -15,11 +16,13 @@ export class Mesh {
 
     private vertices: Float32Array;
     private indices?: Uint16Array;
-    private textureCoordinates: Float32Array;
+    private textureCoordinates?: Float32Array;
+    private normals?: Float32Array;
 
     private vertexBuffer: WebGLBuffer;
     private indexBuffer?: WebGLBuffer;
     private textureBuffer?: WebGLBuffer;
+    private normalBuffer?: WebGLBuffer;
 
     private shaderProgram: ShaderProgram;
 
@@ -60,6 +63,16 @@ export class Mesh {
             }
 
             this.textureBuffer = this.createTextureBuffer(
+                App.Instance.Context
+            );
+        }
+
+        // Create normal buffer if applicable
+        if (meshData.normals) {
+            this.normals = meshData.normals instanceof Float32Array ?
+                meshData.normals : new Float32Array(meshData.normals);
+
+            this.normalBuffer = this.createNormalBuffer(
                 App.Instance.Context
             );
         }
@@ -134,7 +147,11 @@ export class Mesh {
         return indexBuffer;
     }
 
-    private createTextureBuffer(contenxt: WebGLRenderingContext): WebGLBuffer {
+    private createTextureBuffer(context: WebGLRenderingContext): WebGLBuffer {
+        throw Error("Not implemented");
+    }
+
+    private createNormalBuffer(context: WebGLRenderingContext): WebGLBuffer {
         throw Error("Not implemented");
     }
 
