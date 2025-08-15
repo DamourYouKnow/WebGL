@@ -2,7 +2,7 @@
   "name": "typescript-sample-project",
   "version": "0.0.0",
   "description": "TypeScript sample project",
-  "main": "index.js",
+  "main": "./Source/Server/Server.ts",
   "type": "module",
   "scripts": {
     "start": "npx tsx --tsconfig ./tsconfig.server.json ./Source/Server/Server.ts",

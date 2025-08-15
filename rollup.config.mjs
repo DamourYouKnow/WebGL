@@ -10,7 +10,7 @@ export default function() {
     console.log(`Building ${prod ? 'prod' : 'dev'} site`);
 
     return {
-        input: './Source/Client/Core/App.ts',
+        input: './Source/Client/Index.ts',
         output: {
             exports: 'named',
             name: 'App',

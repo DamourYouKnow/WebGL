@@ -1,6 +1,6 @@
 {
     "include": [
-        "Source/Client/Core"
+        "Source/Client/"
     ],
     "compilerOptions": {
         "module": "ESNext",
