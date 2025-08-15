@@ -2,6 +2,8 @@ import { App } from './App';
 import { Vector3 } from './Math/Vector';
 import { ShaderProgram } from './Shader';
 
+// TODO: Refactor into seperate files
+
 type Dimension = 2 | 3;
 
 interface MeshData {
@@ -87,6 +89,16 @@ export class Mesh {
         return this.indices;
     }
 
+    public TextureCoordinates(): Float32Array | null {
+        if (!this.textureCoordinates) return null;
+        return this.textureCoordinates;
+    }
+
+    public Normals(): Float32Array | null {
+        if (!this.normals) return null;
+        return this.normals;
+    }
+
     public VertexSize(): number {
         return this.vertices.byteLength;
     }
@@ -149,12 +161,21 @@ export class Mesh {
 
     private createTextureBuffer(context: WebGLRenderingContext): WebGLBuffer {
         // TODO
-        return null;
+        throw Error("Not implemented");
     }
 
     private createNormalBuffer(context: WebGLRenderingContext): WebGLBuffer {
-        // TODO
-        return null;
+        const normalBuffer = context.createBuffer();
+        
+        context.bindBuffer(context.ARRAY_BUFFER, normalBuffer);
+
+        context.bufferData(
+            context.ARRAY_BUFFER,
+            this.Normals(),
+            context.STATIC_DRAW
+        );
+
+        return normalBuffer;
     }
 
     public Render(context: WebGLRenderingContext) {
@@ -274,28 +295,65 @@ export const Shapes = {
 
         // TODO: Duplicate vertices so we can add normals per vertex
         const vertices = new Float32Array([
+            // Left face
+            -halfX, halfY, halfZ, // Top-Left-Back
+            -halfX, halfY, -halfZ, // Top-Left-Front
+            -halfX, -halfY, halfZ, // Bottom-Left-Back
+            -halfX, -halfY, -halfZ, // Bottom-Left-Front
+
+            // Front face
+            -halfX, halfY, -halfZ, // Top-Left-Front
+            halfX, halfY, -halfZ, // Top-Right-Front
+            -halfX, -halfY, -halfZ, // Bottom-Left-Front
+            halfX, -halfY, -halfZ, // Bottom-Right-Front
+
+            // Right face
+            halfX, halfY, -halfZ, // Top-Right-Front
+            halfX, halfY, halfZ, // Top-Right-Back 
+            halfX, -halfY, -halfZ, // Bottom-Right-Front
+            halfX, -halfY, halfZ, // Bottom-Right-Back
+
+            // Back face
+            halfX, halfY, halfZ, // Top-Right-Back
+            -halfX, halfY, halfZ, // Top-Left-Back
+            halfX, -halfY, halfZ, // Bottom-Right-Back
+            -halfX, -halfY, halfZ, // Bottom-Left-Back
+
+            // Top face
+            -halfX, halfY, halfZ, // Top-Left-Back
+            halfX, halfY, halfZ, // Top-Right-Back
+            -halfX, halfY, -halfZ, // Top-Left-Front
+            halfX, halfY, -halfZ, // Top-Right-Front
+
+            // Bottom face
             -halfX, -halfY, -halfZ, // Bottom-Left-Front
             halfX, -halfY, -halfZ, // Bottom-Right-Front
             -halfX, -halfY, halfZ, // Bottom-Left-Back
-            halfX, -halfY, halfZ, // Bottom-Right-Back
-            -halfX, halfY, -halfZ, // Top-Left-Front
-            halfX, halfY, -halfZ, // Top-Right-Front
-            -halfX, halfY, halfZ, // Top-Left-Back
-            halfX, halfY, halfZ // Top-Right-Back 
+            halfX, -halfY, halfZ // Bottom-Right-Back
         ]);
 
         const indices = new Uint16Array([
-            0, 2, 1, 1, 2, 3, // Bottom (clockwise)
-            0, 1, 4, 1, 5, 4, // Front (counter-clockwise)
-            2, 6, 3, 3, 6, 7, // Back (clockwise)
-            0, 4, 2, 2, 4, 6, // Left (clockwise)
-            1, 3, 5, 3, 7, 5, // Right (counter-clockwise)
-            4, 5, 6, 5, 7, 6 // Top (counter-clockwise)
+            0, 2, 3, 0, 3, 1, // Left
+            4, 6, 7, 4, 7, 5, // Front
+            8, 10, 11, 8, 11, 9, // Right
+            12, 14, 15, 12, 15, 13, // Back
+            16, 18, 19, 16, 19, 17, // Top
+            20, 22, 23, 20, 23, 21 // Bottom
+        ]);
+
+        const normals = new Float32Array([
+            -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, // Left
+            0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, // Front
+            1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, // Right
+            0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, // Back
+            0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, // Top
+            0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0 // Bottom
         ]);
 
         return new Mesh3({
             vertices: vertices,
-            indices: indices
+            indices: indices,
+            normals: normals
         });
     },
     sphere: function(radius: number=0.5, slices: number=16): Mesh3 {

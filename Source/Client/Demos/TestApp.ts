@@ -10,7 +10,7 @@ export default class TestApp extends App {
         this.Input.OnKeyDown(Key.W, () => console.log('W key pressed'));
         this.Input.OnKeyUp(Key.W, () => console.log('W key released'));
     
-        const shape = Shapes.sphere(1, 32);
+        const shape = Shapes.box(2, 1, 1);
 
         const shaderProgram = await ShaderProgram.Load(
             this.Context,
@@ -62,7 +62,7 @@ export default class TestApp extends App {
         );
 
         const viewMatrix = Matrix4.CreateView(
-            new Vector3(0, 0, -4),
+            new Vector3(2, 2, -6),
             Vector3.Up,
             Vector3.Zero
         );
