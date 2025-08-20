@@ -14,9 +14,17 @@ export default class Entity {
     public AddComponent<TComponent extends Component>(
         component: TComponent
     ): TComponent {
-        // TODO: Create new component, or use existing one if provided
         this.components.push(component);
         return component;
+    }
+
+    // TODO: Explicitly define parameters instead of using any type
+    public CreateComponent<TComponent extends Component>(
+        creator: new(...args: any[]) => TComponent,
+        ...args: any[]
+    ): TComponent {
+        const component = new creator(...args);
+        return this.AddComponent(component);
     }
 
     public RemoveComponent(component: Component) {

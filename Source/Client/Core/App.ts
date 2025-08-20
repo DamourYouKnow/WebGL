@@ -1,4 +1,5 @@
 import { InputManager } from "./InputManager";
+import Scene from "./Scene";
 
 export abstract class App {
     public static Instance: App;
@@ -6,6 +7,9 @@ export abstract class App {
     // TODO: Encapsulate, make private
     public readonly Context: WebGLRenderingContext = null;
     public readonly Canvas: HTMLCanvasElement;
+
+    private scenes: Scene[];
+    private activeScene: Scene;
     
     public readonly Input: InputManager;
 
@@ -40,8 +44,14 @@ export abstract class App {
         return this.runtime;
     }
 
-    public Render() {
-        throw Error("Not implemented");
+    private renderStart() {
+        this.Context.clear(
+            this.Context.COLOR_BUFFER_BIT | this.Context.DEPTH_BUFFER_BIT
+        );
+    }
+
+    private renderEnd() {
+        return;
     }
 
     private startUpdateLoop() {
@@ -53,13 +63,10 @@ export abstract class App {
 
             const deltaTimeSeconds = deltaTimeMilliseconds * 0.001;
             this.runtime += deltaTimeSeconds;
-        
-            // TODO: Move rendering control to seperate function
-            this.Context.clear(
-                this.Context.COLOR_BUFFER_BIT | this.Context.DEPTH_BUFFER_BIT
-            );
 
+            this.renderStart();
             this.Update(deltaTimeSeconds);
+            this.renderEnd();
 
             requestAnimationFrame(updateLoop);
         };

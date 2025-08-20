@@ -1,6 +1,7 @@
 import { App } from './App';
 import { Vector3 } from './Math/Vector';
 import { ShaderProgram } from './Shader';
+import { Pi } from './Math/Math';
 
 // TODO: Refactor into seperate files
 
@@ -262,7 +263,7 @@ export const Shapes = {
 
         const verticeArray = new Float32Array((vertices + 1) * 2);
         const indexArray = new Uint16Array(vertices * 3);
-        const angleStep = (2.0 * Math.PI) / vertices;
+        const angleStep = (2.0 * Pi) / vertices;
         let currentAngle = 0.0;
         let index = 0;
         
@@ -366,7 +367,7 @@ export const Shapes = {
         const indices = new Uint16Array(indexSize);
         const normals = new Float32Array(vertexCount * 3);
 
-        const angleStep = Math.PI / slices;
+        const angleStep = Pi / slices;
         
         // Populate vertices
         // Top vertex

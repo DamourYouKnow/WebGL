@@ -1,4 +1,5 @@
 import { Vector3 } from "./Vector";
+import { Pi } from './Math';
 
 type Tuple<
     T,
@@ -252,7 +253,7 @@ export class Matrix4 extends Matrix {
         far: number
     ): Matrix4 {
         const frustrumTop = Math.tan(
-            (verticalFieldOfViewDegrees / 2) * (Math.PI / 180)
+            (verticalFieldOfViewDegrees / 2) * (Pi / 180)
         ) * near;
 
         const frustrumRight = frustrumTop * aspect;
@@ -271,7 +272,7 @@ export class Matrix4 extends Matrix {
         far: number
     ): Matrix4 {
         const frustrumRight = Math.tan(
-            (horizontalFieldOfViewDegrees / 2) * (Math.PI / 180)
+            (horizontalFieldOfViewDegrees / 2) * (Pi / 180)
         ) * near;
 
         const frustrumTop = frustrumRight / aspect;

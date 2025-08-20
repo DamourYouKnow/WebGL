@@ -122,13 +122,13 @@ export default class TestApp extends App {
 
     public Update(deltaTime: number) {
         const runtime = this.GetRuntime();
-        const speed = runtime * 100;
+        const speed = runtime * 5;
 
         const cameraPosition = new Vector3(
-            8 * Math.sin(speed),
-            0, 
-            8 * Math.cos(speed)
-        );
+            Math.sin(speed),
+            1, 
+            Math.cos(speed)
+        ).Normalize().Scale(8);
 
         const viewMatrix = Matrix4.CreateView(
             cameraPosition,
