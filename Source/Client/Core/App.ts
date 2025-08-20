@@ -10,6 +10,7 @@ export abstract class App {
     public readonly Input: InputManager;
 
     private previousTimestamp: number = 0.0;
+    private runtime: number = 0.0;
 
     constructor(canvas: HTMLCanvasElement) {
         this.Canvas = canvas;
@@ -35,6 +36,10 @@ export abstract class App {
         throw Error("Not implemented");
     }
 
+    public GetRuntime(): number {
+        return this.runtime;
+    }
+
     public Render() {
         throw Error("Not implemented");
     }
@@ -47,7 +52,13 @@ export abstract class App {
             this.previousTimestamp = currentTimestamp;
 
             const deltaTimeSeconds = deltaTimeMilliseconds * 0.001;
+            this.runtime += deltaTimeSeconds;
         
+            // TODO: Move rendering control to seperate function
+            this.Context.clear(
+                this.Context.COLOR_BUFFER_BIT | this.Context.DEPTH_BUFFER_BIT
+            );
+
             this.Update(deltaTimeSeconds);
 
             requestAnimationFrame(updateLoop);

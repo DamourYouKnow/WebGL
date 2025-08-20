@@ -3,9 +3,12 @@ import { Vector3 } from '../Core/Math/Vector';
 import { Matrix4 } from '../Core/Math/Matrix';
 import { ShaderProgram } from '../Core/Shader';
 import { Key } from '../Core/InputManager';
-import { Shapes } from '../Core/Geometry';
+import { Mesh3, Shapes } from '../Core/Geometry';
 
 export default class TestApp extends App {
+    private sp: ShaderProgram;
+    private shape: Mesh3;
+
     public async Initialize() {
         this.Input.OnKeyDown(Key.W, () => console.log('W key pressed'));
         this.Input.OnKeyUp(Key.W, () => console.log('W key released'));
@@ -18,6 +21,8 @@ export default class TestApp extends App {
             '3D/color_vertex.glsl', 
             'color_fragment.glsl'
         );
+        this.sp = shaderProgram;
+        this.shape = shape;
 
         shape.SetShaderProgram(shaderProgram);
 
@@ -83,10 +88,6 @@ export default class TestApp extends App {
         this.Context.enable(this.Context.DEPTH_TEST);
         this.Context.depthFunc(this.Context.LEQUAL);
 
-        this.Context.clear(
-            this.Context.COLOR_BUFFER_BIT | this.Context.DEPTH_BUFFER_BIT
-        );
-
         const fieldOfView = 45;
         const aspect = this.Canvas.width / this.Canvas.height;
         const zNear = 0.1;
@@ -99,7 +100,7 @@ export default class TestApp extends App {
         );
 
         const viewMatrix = Matrix4.CreateView(
-            new Vector3(2, 2, -8),
+            new Vector3(0, 0, -8),
             Vector3.Up,
             Vector3.Zero
         );
@@ -120,6 +121,32 @@ export default class TestApp extends App {
     }
 
     public Update(deltaTime: number) {
-        
+        const runtime = this.GetRuntime();
+        const speed = runtime * 100;
+
+        const cameraPosition = new Vector3(
+            8 * Math.sin(speed),
+            0, 
+            8 * Math.cos(speed)
+        );
+
+        const viewMatrix = Matrix4.CreateView(
+            cameraPosition,
+            Vector3.Up,
+            Vector3.Zero
+        );
+
+        const modelViewMatrixLocation = this.Context.getUniformLocation(
+            this.sp.GetProgram(),
+            "u_modelViewMatrix"
+        );
+
+        this.Context.uniformMatrix4fv(
+            modelViewMatrixLocation,
+            false,
+            viewMatrix.ValuesColumnMajor()
+        );
+
+        this.shape.Render(this.Context);
     }
 }
