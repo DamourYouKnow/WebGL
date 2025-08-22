@@ -22,6 +22,8 @@ export class Mesh {
     private textureCoordinates?: Float32Array;
     private normals?: Float32Array;
 
+    private barycentricCoordinates: Float32Array;
+
     private vertexBuffer: WebGLBuffer;
     private indexBuffer?: WebGLBuffer;
     private textureBuffer?: WebGLBuffer;
@@ -43,6 +45,8 @@ export class Mesh {
         // Create vertex buffer
         this.vertices = meshData.vertices instanceof Float32Array ?
             meshData.vertices : new Float32Array(meshData.vertices);
+
+        this.barycentricCoordinates = barycentricVertices(this.vertices);
 
         this.vertexBuffer = this.createVertexBuffer(App.Instance.Context);
 
@@ -496,4 +500,19 @@ function sphericalToCartesian(
         radius * Math.sin(inclinationRadians) * Math.sin(azimuthRadians),
         radius * Math.cos(inclinationRadians)
     );
+}
+
+function barycentricVertices(vertices: Float32Array): Float32Array {
+    const barycentricCoordinates = new Float32Array(vertices.length);
+    let vertexIndex = 0;
+    
+    for (let i = 0; i < vertices.length; i += 3) {
+        barycentricCoordinates[i] = vertexIndex == 0 ? 1 : 0;
+        barycentricCoordinates[i + 1] = vertexIndex == 1 ? 1 : 0;
+        barycentricCoordinates[i + 2] = vertexIndex == 2 ? 1 : 0;
+
+        vertexIndex = (vertexIndex + 1) % 3;
+    }
+
+    return barycentricCoordinates;
 }
