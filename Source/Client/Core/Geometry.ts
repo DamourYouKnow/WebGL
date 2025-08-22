@@ -28,6 +28,7 @@ export class Mesh {
     private indexBuffer?: WebGLBuffer;
     private textureBuffer?: WebGLBuffer;
     private normalBuffer?: WebGLBuffer;
+    private barycentricBuffer: WebGLBuffer;
 
     private shaderProgram: ShaderProgram;
 
@@ -46,9 +47,12 @@ export class Mesh {
         this.vertices = meshData.vertices instanceof Float32Array ?
             meshData.vertices : new Float32Array(meshData.vertices);
 
-        this.barycentricCoordinates = barycentricVertices(this.vertices);
-
         this.vertexBuffer = this.createVertexBuffer(App.Instance.Context);
+
+        this.barycentricCoordinates = barycentricVertices(this.vertices);
+        this.barycentricBuffer = this.createBarycentricBuffer(
+            App.Instance.Context
+        );
 
         // Create index buffer if applicable
         if (meshData.indices) {
@@ -130,6 +134,7 @@ export class Mesh {
         return this.indexBuffer ? this.indexBuffer : null;
     }
 
+    // TODO: Helper function for initializing buffers
     // TODO: Abstraction for context
     private createVertexBuffer(context: WebGLRenderingContext): WebGLBuffer {
         const vertexBuffer = context.createBuffer();
@@ -183,7 +188,27 @@ export class Mesh {
         return normalBuffer;
     }
 
-    public Render(context: WebGLRenderingContext) {
+    private createBarycentricBuffer(
+        context: WebGLRenderingContext
+    ): WebGLBuffer {
+        const barycentricBuffer = context.createBuffer();
+        
+        context.bindBuffer(context.ARRAY_BUFFER, barycentricBuffer);
+
+        context.bufferData(
+            context.ARRAY_BUFFER,
+            this.barycentricCoordinates,
+            context.STATIC_DRAW
+        );
+
+        return barycentricBuffer;
+    }
+
+    // TODO: Create RenderOptions interface
+    public Render(
+        context: WebGLRenderingContext, 
+        wireframe: boolean=false
+    ) {
         context.bindBuffer(context.ARRAY_BUFFER, this.vertexBuffer);
 
         const positionAttribute = context.getAttribLocation(
@@ -202,6 +227,25 @@ export class Mesh {
 
         context.enableVertexAttribArray(positionAttribute);
 
+        if (wireframe) {
+            context.bindBuffer(context.ARRAY_BUFFER, this.barycentricBuffer);
+
+            const barycentricAttribute = context.getAttribLocation(
+                this.shaderProgram.GetProgram(),
+                "a_barycentric"
+            );
+
+            context.vertexAttribPointer(
+                barycentricAttribute,
+                this.dimension,
+                context.FLOAT,
+                false,
+                0,
+                0
+            );
+
+            context.enableVertexAttribArray(barycentricAttribute);
+        }
 
         if (this.indices) {
             context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, this.indexBuffer);

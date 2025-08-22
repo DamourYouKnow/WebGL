@@ -2,6 +2,7 @@ import { requestFile } from "./Web";
 
 type ShaderType = "Vertex" | "Fragment";
 
+// TODO: Keep record of filepath for error reporting
 export class Shader {
     private context: WebGLRenderingContext;
     private type: ShaderType;

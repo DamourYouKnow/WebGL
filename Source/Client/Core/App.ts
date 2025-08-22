@@ -10,6 +10,8 @@ export abstract class App {
 
     private scenes: Scene[];
     private activeScene: Scene;
+
+    public WireframeMode: boolean = false;
     
     public readonly Input: InputManager;
 

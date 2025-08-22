@@ -18,8 +18,8 @@ export default class TestApp extends App {
 
         const shaderProgram = await ShaderProgram.Load(
             this.Context,
-            '3D/color_vertex.glsl', 
-            'color_fragment.glsl'
+            '3D/wireframe_vertex.glsl', 
+            '3D/wireframe_fragment.glsl'
         );
         this.sp = shaderProgram;
         this.shape = shape;
@@ -44,6 +44,7 @@ export default class TestApp extends App {
         );
 
         // Add some color for fun
+        /*
         const vertices = Array.from(shape.Vertices());
         const colors = vertices.reduce((acc, cur, i) => {
             const value = (1 * Math.abs(cur)) / radius;
@@ -77,7 +78,7 @@ export default class TestApp extends App {
             0
         );
         this.Context.enableVertexAttribArray(colorLocation);
-
+        */
 
         this.Context.useProgram(shaderProgram.GetProgram());
 
@@ -121,12 +122,15 @@ export default class TestApp extends App {
     }
 
     public Update(deltaTime: number) {
+        this.shape.Render(this.Context, true);
+        return;
+
         const runtime = this.GetRuntime();
         const speed = runtime * 5;
 
         const cameraPosition = new Vector3(
             Math.sin(speed),
-            1, 
+            0, 
             Math.cos(speed)
         ).Normalize().Scale(8);
 
@@ -147,6 +151,6 @@ export default class TestApp extends App {
             viewMatrix.ValuesColumnMajor()
         );
 
-        this.shape.Render(this.Context);
+        this.shape.Render(this.Context, true);
     }
 }

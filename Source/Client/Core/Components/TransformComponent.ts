@@ -14,6 +14,22 @@ export default class TransformComponent extends BehaviorComponent {
         this.position = position;
     }
 
+    public GetScale(): Vector3 {
+        return this.scale;
+    }
+
+    public SetScale(scale: Vector3) {
+        this.scale = scale;
+    }
+
+    public GetRotation(): Vector3 {
+        return this.rotation;
+    }
+
+    public SetRotation(rotation: Vector3) {
+        this.rotation = rotation;
+    }
+
     public override Update(deltaTime: number) {
         
     }
