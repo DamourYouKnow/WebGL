@@ -14,7 +14,7 @@ void main() {
 }
 
 bool isEdge(vec3 barycentric) {
-    float tolerance = 0.1;
+    float tolerance = 0.05;
     
     if (barycentric.x < tolerance) return true;
     if (barycentric.y < tolerance) return true;

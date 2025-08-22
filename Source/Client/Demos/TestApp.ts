@@ -14,7 +14,7 @@ export default class TestApp extends App {
         this.Input.OnKeyUp(Key.W, () => console.log('W key released'));
     
         const radius = 2;
-        const shape = Shapes.sphere(radius, 32);
+        const shape = Shapes.sphere(radius, 2);
 
         const shaderProgram = await ShaderProgram.Load(
             this.Context,
@@ -101,7 +101,7 @@ export default class TestApp extends App {
         );
 
         const viewMatrix = Matrix4.CreateView(
-            new Vector3(0, 0, -8),
+            new Vector3(0, 2, -8),
             Vector3.Up,
             Vector3.Zero
         );

@@ -49,7 +49,6 @@ export class Mesh {
 
         this.vertexBuffer = this.createVertexBuffer(App.Instance.Context);
 
-        this.barycentricCoordinates = barycentricVertices(this.vertices);
         this.barycentricBuffer = this.createBarycentricBuffer(
             App.Instance.Context
         );
@@ -61,6 +60,12 @@ export class Mesh {
 
             this.indexBuffer = this.createIndexBuffer(App.Instance.Context);
         }
+
+        // Assign barycentric coordinates to vertices
+        this.barycentricCoordinates = barycentricVertices(
+            this.vertices,
+            this.indices
+        );
 
         // Create texture buffer if applicable
         if (meshData.textureCoordinates) {
@@ -429,7 +434,7 @@ export const Shapes = {
         
         let currentVertexIndex = 3;
         let currentAzimuth = 0.0;
-        let currentInclination = angleStep;
+        let currentInclination = angleStep / 2;
 
         for (
             let azimuthSlice = 0;
@@ -476,10 +481,9 @@ export const Shapes = {
         // Populate indices
         // Helper function for calculating right-adjacent index
         const adjacentVertexIndex = (vertexIndex: number): number => {
-            const floor = Math.floor((vertexIndex - 1) / azimuthIndices);
-            const azimuthStartIndex = (floor * azimuthIndices) + 1;
-
-            return (vertexIndex % azimuthIndices) + azimuthStartIndex;
+            const row = Math.floor((vertexIndex - 1) / azimuthIndices);
+            const column = (vertexIndex) % azimuthIndices;
+            return (row * azimuthIndices) + column + 1;
         };
 
         // Top triangles
@@ -541,22 +545,42 @@ function sphericalToCartesian(
 ): Vector3 {
     return new Vector3(
         radius * Math.sin(inclinationRadians) * Math.cos(azimuthRadians),
-        radius * Math.sin(inclinationRadians) * Math.sin(azimuthRadians),
-        radius * Math.cos(inclinationRadians)
+        radius * Math.cos(inclinationRadians),
+        radius * Math.sin(inclinationRadians) * Math.sin(azimuthRadians)
     );
 }
 
-function barycentricVertices(vertices: Float32Array): Float32Array {
-    const barycentricCoordinates = new Float32Array(vertices.length);
-    let vertexIndex = 0;
-    
-    for (let i = 0; i < vertices.length; i += 3) {
-        barycentricCoordinates[i] = vertexIndex == 0 ? 1 : 0;
-        barycentricCoordinates[i + 1] = vertexIndex == 1 ? 1 : 0;
-        barycentricCoordinates[i + 2] = vertexIndex == 2 ? 1 : 0;
+function barycentricVertices(
+    vertices: Float32Array,
+    indices?: Uint16Array,
+): Float32Array {
+    const coordinates: (number | null)[] = new Array(vertices.length);
+    coordinates.fill(null);
 
-        vertexIndex = (vertexIndex + 1) % 3;
+    const barycentricTriangle = new Float32Array([
+        1, 0, 0,
+        0, 1, 0,
+        0, 0, 1
+    ]);
+    
+    // Use index array to determine the triangles each vertice belongs too
+    if (indices) {
+        for (let i = 0; i < indices.length; i++) {
+            const vertexIndex = indices[i];
+            const triangleIndex = i % barycentricTriangle.length;  
+            
+            if (coordinates[vertexIndex] != null) continue;
+
+            coordinates[vertexIndex] = barycentricTriangle[triangleIndex];
+        }
+    }
+    // Otherwise assume each 3-pair of vertices is a triangle
+    else {
+        for (let i = 0; i < vertices.length; i++) {
+            const triangleIndex = i % barycentricTriangle.length;
+            coordinates[i] = barycentricTriangle[triangleIndex];
+        }
     }
 
-    return barycentricCoordinates;
+    return new Float32Array(coordinates);
 }
