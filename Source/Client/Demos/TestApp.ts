@@ -128,7 +128,7 @@ export default class TestApp extends App {
 
         const cameraPosition = new Vector3(
             Math.sin(speed),
-            0, 
+            Math.sin(speed * 0.5), 
             Math.cos(speed)
         ).Normalize().Scale(8);
 
