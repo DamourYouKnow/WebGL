@@ -1,7 +1,7 @@
 import { App } from '../Core/App';
 import { Vector3 } from '../Core/Math/Vector';
 import { Matrix4 } from '../Core/Math/Matrix';
-import { ShaderProgram } from '../Core/Shader';
+import { Shaders, ShaderProgram } from '../Core/Shader';
 import { Key } from '../Core/InputManager';
 import { Mesh3, Shapes } from '../Core/Geometry';
 
@@ -13,18 +13,14 @@ export default class TestApp extends App {
         this.Input.OnKeyDown(Key.W, () => console.log('W key pressed'));
         this.Input.OnKeyUp(Key.W, () => console.log('W key released'));
     
-        const radius = 2;
-        const shape = Shapes.sphere(radius, 2);
-
-        const shaderProgram = await ShaderProgram.Load(
-            this.Context,
-            '3D/wireframe_vertex.glsl', 
-            '3D/wireframe_fragment.glsl'
-        );
+        const shaderProgram = Shaders.color3D;
         this.sp = shaderProgram;
-        this.shape = shape;
 
-        shape.SetShaderProgram(shaderProgram);
+        const radius = 2;
+        const shape = Shapes.sphere(shaderProgram, radius, 8);
+
+
+        this.shape = shape;
 
         /*
         const positionLocation = this.Context.getAttribLocation(
@@ -44,7 +40,6 @@ export default class TestApp extends App {
         );
 
         // Add some color for fun
-        /*
         const vertices = Array.from(shape.Vertices());
         const colors = vertices.reduce((acc, cur, i) => {
             const value = (1 * Math.abs(cur)) / radius;
@@ -78,7 +73,7 @@ export default class TestApp extends App {
             0
         );
         this.Context.enableVertexAttribArray(colorLocation);
-        */
+    
 
         this.Context.useProgram(shaderProgram.GetProgram());
 
@@ -122,11 +117,11 @@ export default class TestApp extends App {
     }
 
     public Update(deltaTime: number) {
-        this.shape.Render(this.Context, true);
-        return;
+        //this.shape.Render(this.Context, false);
+        //return;
 
         const runtime = this.GetRuntime();
-        const speed = runtime * 5;
+        const speed = runtime * 2.5;
 
         const cameraPosition = new Vector3(
             Math.sin(speed),
@@ -151,6 +146,6 @@ export default class TestApp extends App {
             viewMatrix.ValuesColumnMajor()
         );
 
-        this.shape.Render(this.Context, true);
+        this.shape.Render(this.Context, false);
     }
 }

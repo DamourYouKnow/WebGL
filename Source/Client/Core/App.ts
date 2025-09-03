@@ -1,11 +1,15 @@
 import { InputManager } from "./InputManager";
+import { Shaders, loadShaderPresets } from "./Shader";
 import Scene from "./Scene";
 
 export abstract class App {
     public static Instance: App;
 
     // TODO: Encapsulate, make private
+    // TODO: Context management to avoid passing this property everywhere
     public readonly Context: WebGLRenderingContext = null;
+
+    // TODO: Move canvas to Scene to allow multi-context apps
     public readonly Canvas: HTMLCanvasElement;
 
     private scenes: Scene[];
@@ -26,8 +30,12 @@ export abstract class App {
 
         this.Input = new InputManager(canvas);
         
-        this.Initialize().then(() => {
+        loadShaderPresets(this.Context).then(() => {
+            return this.Initialize();
+        }).then(() => {
             this.startUpdateLoop();
+        }).catch((err) => {
+            console.error(err);
         });
     }
 

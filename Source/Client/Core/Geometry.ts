@@ -1,6 +1,6 @@
 import { App } from './App';
 import { Vector3 } from './Math/Vector';
-import { ShaderProgram } from './Shader';
+import { Shader, ShaderProgram } from './Shader';
 import { Pi } from './Math/Math';
 
 // TODO: Refactor into seperate files
@@ -33,15 +33,13 @@ export class Mesh {
     private shaderProgram: ShaderProgram;
 
     public constructor(
-        dimension: Dimension, 
-        meshData: MeshData,
-    );
-
-    public constructor(
-        dimension: Dimension, 
-        meshData: MeshData,
+        dimension: Dimension,
+        shaderProgram: ShaderProgram, 
+        meshData: MeshData
     ) {
         this.dimension = dimension;
+
+        this.SetShaderProgram(shaderProgram);
 
         // Create vertex buffer
         this.vertices = meshData.vertices instanceof Float32Array ?
@@ -49,9 +47,11 @@ export class Mesh {
 
         this.vertexBuffer = this.createVertexBuffer(App.Instance.Context);
 
+        /*
         this.barycentricBuffer = this.createBarycentricBuffer(
             App.Instance.Context
         );
+        */
 
         // Create index buffer if applicable
         if (meshData.indices) {
@@ -152,6 +152,22 @@ export class Mesh {
             context.STATIC_DRAW
         );
 
+        const positionAttribute = context.getAttribLocation(
+            this.shaderProgram.GetProgram(),
+            "a_position"
+        );
+
+        context.vertexAttribPointer(
+            positionAttribute, 
+            this.dimension,
+            context.FLOAT, 
+            false, 
+            0, 
+            0
+        );
+
+        context.enableVertexAttribArray(positionAttribute);
+
         context.bindBuffer(context.ARRAY_BUFFER, null);
 
         return vertexBuffer;
@@ -193,6 +209,8 @@ export class Mesh {
         return normalBuffer;
     }
 
+    // TODO: Only create when using wireframe shader program.
+    // TODO: Use indices to create overlapping vertices.
     private createBarycentricBuffer(
         context: WebGLRenderingContext
     ): WebGLBuffer {
@@ -206,6 +224,24 @@ export class Mesh {
             context.STATIC_DRAW
         );
 
+        const barycentricAttribute = context.getAttribLocation(
+            this.shaderProgram.GetProgram(),
+            "a_barycentric"
+        );
+
+        context.vertexAttribPointer(
+            barycentricAttribute,
+            this.dimension,
+            context.FLOAT,
+            false,
+            0,
+            0
+        );
+
+        context.enableVertexAttribArray(barycentricAttribute);
+
+        context.bindBuffer(context.ARRAY_BUFFER, null);
+
         return barycentricBuffer;
     }
 
@@ -214,42 +250,8 @@ export class Mesh {
         context: WebGLRenderingContext, 
         wireframe: boolean=false
     ) {
-        context.bindBuffer(context.ARRAY_BUFFER, this.vertexBuffer);
-
-        const positionAttribute = context.getAttribLocation(
-            this.shaderProgram.GetProgram(),
-            "a_position"
-        );
-
-        context.vertexAttribPointer(
-            positionAttribute, 
-            this.dimension,
-            context.FLOAT, 
-            false, 
-            0, 
-            0
-        );
-
-        context.enableVertexAttribArray(positionAttribute);
-
         if (wireframe) {
-            context.bindBuffer(context.ARRAY_BUFFER, this.barycentricBuffer);
-
-            const barycentricAttribute = context.getAttribLocation(
-                this.shaderProgram.GetProgram(),
-                "a_barycentric"
-            );
-
-            context.vertexAttribPointer(
-                barycentricAttribute,
-                this.dimension,
-                context.FLOAT,
-                false,
-                0,
-                0
-            );
-
-            context.enableVertexAttribArray(barycentricAttribute);
+            // TODO
         }
 
         if (this.indices) {
@@ -277,14 +279,14 @@ export class Mesh {
 }
 
 export class Mesh2 extends Mesh {
-    public constructor(meshData: MeshData) {
-        super(2, meshData);
+    public constructor(shaderProgram: ShaderProgram, meshData: MeshData) {
+        super(2, shaderProgram, meshData);
     }
 }
 
 export class Mesh3 extends Mesh {
-    public constructor(meshData) {
-        super(3, meshData);
+    public constructor(shaderProgram: ShaderProgram, meshData) {
+        super(3, shaderProgram, meshData);
     }
 }
 
@@ -292,7 +294,10 @@ export const Shapes = {
     triangle: function() {
         throw Error('Not implemented');
     },
-    rectangle: function(width: number=0.5, height: number=0.5) {
+    rectangle: function(
+        shaderProgram: ShaderProgram,
+        width: number=0.5, height: number=0.5
+    ) {
         const vertices = new Float32Array([
             -width, -height,
             width, -height,
@@ -306,12 +311,15 @@ export const Shapes = {
         ]);
 
         // TODO: Use index buffer.
-        return new Mesh2({
+        return new Mesh2(shaderProgram, {
             vertices: vertices,
             indices: indices
         });
     },
-    circle: function(radius: number=0.5, vertices: number=64) {
+    circle: function(
+        shaderProgram: ShaderProgram,
+        radius: number=0.5, vertices: number=64
+    ) {
         // TODO: Assert vertices >= 3
 
         const verticeArray = new Float32Array((vertices + 1) * 2);
@@ -333,12 +341,13 @@ export const Shapes = {
             currentAngle += angleStep;
         }
 
-        return new Mesh2({
+        return new Mesh2(shaderProgram, {
             vertices: verticeArray,
             indices: indexArray
         });
     },
     box: function(
+        shaderProgram: ShaderProgram,
         xLength: number=0.5, 
         yLength: number=0.5, 
         zLength: number=0.5
@@ -404,13 +413,16 @@ export const Shapes = {
             0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0 // Bottom
         ]);
 
-        return new Mesh3({
+        return new Mesh3(shaderProgram, {
             vertices: vertices,
             indices: indices,
             normals: normals
         });
     },
-    sphere: function(radius: number=0.5, slices: number=16): Mesh3 {
+    sphere: function(
+        shaderProgram: ShaderProgram,
+        radius: number=0.5, slices: number=16
+    ): Mesh3 {
         const vertexCount = 2 + (2 * slices * slices);
         
         const indexSize = (slices * 2 * 3 * 2) // Top and bottom triangles
@@ -530,7 +542,7 @@ export const Shapes = {
             indices[currentIndex++] = adjacentVertexIndex(vertexIndex);
         }
 
-        return new Mesh3({
+        return new Mesh3(shaderProgram, {
             vertices: vertices,
             indices: indices,
             normals: normals

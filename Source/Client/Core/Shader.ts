@@ -3,6 +3,7 @@ import { requestFile } from "./Web";
 type ShaderType = "Vertex" | "Fragment";
 
 // TODO: Keep record of filepath for error reporting
+// TODO: Preset types for common shader programs
 export class Shader {
     private context: WebGLRenderingContext;
     private type: ShaderType;
@@ -127,4 +128,49 @@ export class ShaderProgram {
     public GetProgram(): WebGLProgram {
         return this.program;
     }
+}
+
+// Common shaders, populated when App is created
+export interface ShaderPresets {
+    basic2D: ShaderProgram,
+    basic3D: ShaderProgram,
+    color2D: ShaderProgram,
+    color3D: ShaderProgram,
+    wireframe: ShaderProgram,
+}
+
+export let Shaders: ShaderPresets;
+
+// TODO: Parallel load with Promise.all
+// TODO: Integrate with resource manager
+export async function loadShaderPresets(
+    context: WebGLRenderingContext
+): Promise<void> {
+    Shaders = {
+        basic2D: await ShaderProgram.Load(
+            context,
+            '2D/basic_vertex.glsl',
+            'basic_fragment.glsl'
+        ),
+        basic3D: await ShaderProgram.Load(
+            context,
+            '3D/basic_vertex.glsl',
+            'basic_fragment.glsl',
+        ),
+        color2D: await ShaderProgram.Load(
+            context,
+            '2D/color_vertex.glsl',
+            'color_fragment.glsl'
+        ),
+        color3D: await ShaderProgram.Load(
+            context,
+            '3D/color_vertex.glsl',
+            'color_fragment.glsl'
+        ),
+        wireframe: await ShaderProgram.Load(
+            context,
+            '3D/wireframe_vertex.glsl',
+            '3D/wireframe_fragment.glsl'
+        )
+    };
 }
