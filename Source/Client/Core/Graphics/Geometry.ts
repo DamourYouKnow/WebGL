@@ -1,8 +1,8 @@
-import { App } from './App';
+import { App } from '../App';
 import { Context, Attribute } from './Graphics';
-import { Vector3 } from './Math/Vector';
+import { Vector3 } from '../Math/Vector';
 import { Shader, ShaderProgram } from './Shader';
-import { Pi } from './Math/Math';
+import { Pi } from '../Math/Math';
 
 // TODO: Refactor into seperate files
 

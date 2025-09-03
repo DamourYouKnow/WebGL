@@ -1,6 +1,6 @@
-import { Context } from "./Graphics";
+import { Context } from "./Graphics/Graphics";
 import { InputManager } from "./InputManager";
-import { Shaders, loadShaderPresets } from "./Shader";
+import { Shaders, loadShaderPresets } from "./Graphics/Shader";
 import Scene from "./Scene";
 
 export abstract class App {

@@ -1,12 +1,13 @@
 import { Context } from "./Graphics";
-import { requestFile } from "./Web";
+import { requestFile } from "../Web";
 
 type ShaderType = "Vertex" | "Fragment";
 
 // TODO: Keep record of filepath for error reporting
 // TODO: Preset types for common shader programs
 export class Shader {
-    private context: Context;
+    public readonly Context: Context;
+
     private type: ShaderType;
     private source: string;
     private shader: WebGLShader;
@@ -16,7 +17,7 @@ export class Shader {
         type: ShaderType, 
         source: string
     ) {
-        this.context = context;
+        this.Context = context;
         this.type = type;
         this.source = source;
     }
@@ -68,12 +69,13 @@ export class Shader {
 
 // TODO: Resource manager for shader programs
 export class ShaderProgram {
-    private context: Context;
+    public readonly Context: Context;
+
     private program: WebGLProgram;
     private shaders: Shader[];
 
     public constructor(context: Context, ...shaders: Shader[]) {
-        this.context = context;
+        this.Context = context;
         this.shaders = shaders;
     }
 

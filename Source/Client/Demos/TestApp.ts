@@ -1,9 +1,9 @@
 import { App } from '../Core/App';
 import { Vector3 } from '../Core/Math/Vector';
 import { Matrix4 } from '../Core/Math/Matrix';
-import { Shaders, ShaderProgram } from '../Core/Shader';
+import { Shaders, ShaderProgram } from '../Core/Graphics/Shader';
 import { Key } from '../Core/InputManager';
-import { Mesh3, Shapes } from '../Core/Geometry';
+import { Mesh3, Shapes } from '../Core/Graphics/Geometry';
 
 export default class TestApp extends App {
     private sp: ShaderProgram;
