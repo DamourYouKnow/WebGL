@@ -1,4 +1,5 @@
 import { App } from './App';
+import { Context, Attribute } from './Graphics';
 import { Vector3 } from './Math/Vector';
 import { Shader, ShaderProgram } from './Shader';
 import { Pi } from './Math/Math';
@@ -14,8 +15,11 @@ interface MeshData {
     normals?: Float32Array | number[]
 }
 
+
 export class Mesh {
-    private dimension: Dimension;
+    public readonly Dimension: Dimension;
+
+    public readonly Attributes: { [key: string]: Attribute };
 
     private vertices: Float32Array;
     private indices?: Uint16Array;
@@ -37,7 +41,7 @@ export class Mesh {
         shaderProgram: ShaderProgram, 
         meshData: MeshData
     ) {
-        this.dimension = dimension;
+        this.Dimension = dimension;
 
         this.SetShaderProgram(shaderProgram);
 
@@ -45,7 +49,7 @@ export class Mesh {
         this.vertices = meshData.vertices instanceof Float32Array ?
             meshData.vertices : new Float32Array(meshData.vertices);
 
-        this.vertexBuffer = this.createVertexBuffer(App.Instance.Context);
+        this.vertexBuffer = this.createVertexBuffer(App.Instance.Context.WebGL);
 
         /*
         this.barycentricBuffer = this.createBarycentricBuffer(
@@ -58,7 +62,9 @@ export class Mesh {
             this.indices = meshData.indices instanceof Uint16Array ?
                 meshData.indices : new Uint16Array(meshData.indices);
 
-            this.indexBuffer = this.createIndexBuffer(App.Instance.Context);
+            this.indexBuffer = this.createIndexBuffer(
+                App.Instance.Context.WebGL
+            );
         }
 
         // Assign barycentric coordinates to vertices
@@ -79,7 +85,7 @@ export class Mesh {
             }
 
             this.textureBuffer = this.createTextureBuffer(
-                App.Instance.Context
+                App.Instance.Context.WebGL
             );
         }
 
@@ -89,7 +95,7 @@ export class Mesh {
                 meshData.normals : new Float32Array(meshData.normals);
 
             this.normalBuffer = this.createNormalBuffer(
-                App.Instance.Context
+                App.Instance.Context.WebGL
             );
         }
     }
@@ -159,7 +165,7 @@ export class Mesh {
 
         context.vertexAttribPointer(
             positionAttribute, 
-            this.dimension,
+            this.Dimension,
             context.FLOAT, 
             false, 
             0, 
@@ -231,7 +237,7 @@ export class Mesh {
 
         context.vertexAttribPointer(
             barycentricAttribute,
-            this.dimension,
+            this.Dimension,
             context.FLOAT,
             false,
             0,
@@ -247,7 +253,7 @@ export class Mesh {
 
     // TODO: Create RenderOptions interface
     public Render(
-        context: WebGLRenderingContext, 
+        context: Context, 
         wireframe: boolean=false
     ) {
         if (wireframe) {
@@ -255,18 +261,21 @@ export class Mesh {
         }
 
         if (this.indices) {
-            context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+            context.WebGL.bindBuffer(
+                context.WebGL.ELEMENT_ARRAY_BUFFER, 
+                this.indexBuffer
+            );
 
-            context.drawElements(
-                context.TRIANGLES,
+            context.WebGL.drawElements(
+                context.WebGL.TRIANGLES,
                 this.IndexCount(),
-                context.UNSIGNED_SHORT,
+                context.WebGL.UNSIGNED_SHORT,
                 0
             );
         }
         else {
-            context.drawArrays(
-                context.TRIANGLES,
+            context.WebGL.drawArrays(
+                context.WebGL.TRIANGLES,
                 0,
                 this.VertexCount()
             );

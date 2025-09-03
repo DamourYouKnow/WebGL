@@ -29,12 +29,12 @@ export default class TestApp extends App {
         );
         */
 
-        const projectionMatrixLocation = this.Context.getUniformLocation(
+        const projectionMatrixLocation = this.Context.WebGL.getUniformLocation(
             shaderProgram.GetProgram(),
             "u_projectionMatrix"
         );
 
-        const modelViewMatrixLocation = this.Context.getUniformLocation(
+        const modelViewMatrixLocation = this.Context.WebGL.getUniformLocation(
             shaderProgram.GetProgram(),
             "u_modelViewMatrix"
         );
@@ -49,40 +49,43 @@ export default class TestApp extends App {
             return [...acc, value];
         }, []);
 
-        const colorLocation = this.Context.getAttribLocation(
+        const colorLocation = this.Context.WebGL.getAttribLocation(
             shaderProgram.GetProgram(),
             "a_color"
         );
 
-        const colorBuffer = this.Context.createBuffer();
-        this.Context.bindBuffer(
-            this.Context.ARRAY_BUFFER,
+        const colorBuffer = this.Context.WebGL.createBuffer();
+        this.Context.WebGL.bindBuffer(
+            this.Context.WebGL.ARRAY_BUFFER,
             colorBuffer
         );
-        this.Context.bufferData(
-            this.Context.ARRAY_BUFFER,
+        this.Context.WebGL.bufferData(
+            this.Context.WebGL.ARRAY_BUFFER,
             new Float32Array(colors),
-            this.Context.STATIC_DRAW
+            this.Context.WebGL.STATIC_DRAW
         );
-        this.Context.vertexAttribPointer(
+        this.Context.WebGL.vertexAttribPointer(
             colorLocation,
             4,
-            this.Context.FLOAT,
+            this.Context.WebGL.FLOAT,
             false,
             0,
             0
         );
-        this.Context.enableVertexAttribArray(colorLocation);
+        this.Context.WebGL.enableVertexAttribArray(colorLocation);
     
 
-        this.Context.useProgram(shaderProgram.GetProgram());
+        this.Context.WebGL.useProgram(shaderProgram.GetProgram());
 
-        this.Context.viewport(0, 0, this.Canvas.width, this.Canvas.height);
+        this.Context.WebGL.viewport(
+            0, 0, 
+            this.Canvas.width, this.Canvas.height
+        );
 
-        this.Context.clearColor(0.5, 0.5, 0.5, 0.9);
-        this.Context.clearDepth(1.0);
-        this.Context.enable(this.Context.DEPTH_TEST);
-        this.Context.depthFunc(this.Context.LEQUAL);
+        this.Context.WebGL.clearColor(0.5, 0.5, 0.5, 0.9);
+        this.Context.WebGL.clearDepth(1.0);
+        this.Context.WebGL.enable(this.Context.WebGL.DEPTH_TEST);
+        this.Context.WebGL.depthFunc(this.Context.WebGL.LEQUAL);
 
         const fieldOfView = 45;
         const aspect = this.Canvas.width / this.Canvas.height;
@@ -101,13 +104,13 @@ export default class TestApp extends App {
             Vector3.Zero
         );
 
-        this.Context.uniformMatrix4fv(
+        this.Context.WebGL.uniformMatrix4fv(
             projectionMatrixLocation,
             false,
             projectionMatrix.ValuesColumnMajor()
         );
 
-        this.Context.uniformMatrix4fv(
+        this.Context.WebGL.uniformMatrix4fv(
             modelViewMatrixLocation,
             false,
             viewMatrix.ValuesColumnMajor()
@@ -135,12 +138,12 @@ export default class TestApp extends App {
             Vector3.Zero
         );
 
-        const modelViewMatrixLocation = this.Context.getUniformLocation(
+        const modelViewMatrixLocation = this.Context.WebGL.getUniformLocation(
             this.sp.GetProgram(),
             "u_modelViewMatrix"
         );
 
-        this.Context.uniformMatrix4fv(
+        this.Context.WebGL.uniformMatrix4fv(
             modelViewMatrixLocation,
             false,
             viewMatrix.ValuesColumnMajor()

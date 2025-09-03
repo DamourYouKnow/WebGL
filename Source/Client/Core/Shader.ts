@@ -1,3 +1,4 @@
+import { Context } from "./Graphics";
 import { requestFile } from "./Web";
 
 type ShaderType = "Vertex" | "Fragment";
@@ -5,13 +6,13 @@ type ShaderType = "Vertex" | "Fragment";
 // TODO: Keep record of filepath for error reporting
 // TODO: Preset types for common shader programs
 export class Shader {
-    private context: WebGLRenderingContext;
+    private context: Context;
     private type: ShaderType;
     private source: string;
     private shader: WebGLShader;
 
     public constructor(
-        context: WebGLRenderingContext,
+        context: Context,
         type: ShaderType, 
         source: string
     ) {
@@ -26,34 +27,34 @@ export class Shader {
 
     // TODO: Resource manager for shaders
     public static Load(
-        context: WebGLRenderingContext,
+        context: Context,
         type: ShaderType,
         source: string
     ): Shader {
         if (!context) return;
 
         const shaderTypes = {
-            "Vertex": context.VERTEX_SHADER,
-            "Fragment": context.FRAGMENT_SHADER
+            "Vertex": context.WebGL.VERTEX_SHADER,
+            "Fragment": context.WebGL.FRAGMENT_SHADER
         };
 
         if (!(type in shaderTypes)) return;
 
-        const shader = context.createShader(shaderTypes[type]);
+        const shader = context.WebGL.createShader(shaderTypes[type]);
         
-        context.shaderSource(shader, source);
-        context.compileShader(shader);
+        context.WebGL.shaderSource(shader, source);
+        context.WebGL.compileShader(shader);
     
-        const compileStatus = context.getShaderParameter(
+        const compileStatus = context.WebGL.getShaderParameter(
             shader, 
-            context.COMPILE_STATUS
+            context.WebGL.COMPILE_STATUS
         );
 
         if (!compileStatus) {
             const errMessage = 'Shader compilation error:\n'
-                + context.getShaderInfoLog(shader);
+                + context.WebGL.getShaderInfoLog(shader);
         
-            context.deleteShader(shader);
+            context.WebGL.deleteShader(shader);
 
             throw Error(errMessage);
         }
@@ -67,17 +68,17 @@ export class Shader {
 
 // TODO: Resource manager for shader programs
 export class ShaderProgram {
-    private context: WebGLRenderingContext;
+    private context: Context;
     private program: WebGLProgram;
     private shaders: Shader[];
 
-    public constructor(context: WebGLRenderingContext, ...shaders: Shader[]) {
+    public constructor(context: Context, ...shaders: Shader[]) {
         this.context = context;
         this.shaders = shaders;
     }
 
     public static async Load(
-        context: WebGLRenderingContext,
+        context: Context,
         vertexPath: string,
         fragmentPath: string
     ): Promise<ShaderProgram> {
@@ -101,21 +102,21 @@ export class ShaderProgram {
             fragmentShaderSource
         );
 
-        const shaderProgram = context.createProgram();
+        const shaderProgram = context.WebGL.createProgram();
         
-        context.attachShader(shaderProgram, vertexShader.GetShader());
-        context.attachShader(shaderProgram, fragmentShader.GetShader());
+        context.WebGL.attachShader(shaderProgram, vertexShader.GetShader());
+        context.WebGL.attachShader(shaderProgram, fragmentShader.GetShader());
 
-        context.linkProgram(shaderProgram);
+        context.WebGL.linkProgram(shaderProgram);
 
-        const linkStatus = context.getProgramParameter(
+        const linkStatus = context.WebGL.getProgramParameter(
             shaderProgram, 
-            context.LINK_STATUS
+            context.WebGL.LINK_STATUS
         );
 
         if (!linkStatus) {
             const errMessage = 'Shader program link error:\n'
-                + context.getProgramInfoLog(shaderProgram);
+                + context.WebGL.getProgramInfoLog(shaderProgram);
 
             throw Error(errMessage);
         }
@@ -144,7 +145,7 @@ export let Shaders: ShaderPresets;
 // TODO: Parallel load with Promise.all
 // TODO: Integrate with resource manager
 export async function loadShaderPresets(
-    context: WebGLRenderingContext
+    context: Context
 ): Promise<void> {
     Shaders = {
         basic2D: await ShaderProgram.Load(

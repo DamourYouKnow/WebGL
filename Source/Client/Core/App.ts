@@ -1,3 +1,4 @@
+import { Context } from "./Graphics";
 import { InputManager } from "./InputManager";
 import { Shaders, loadShaderPresets } from "./Shader";
 import Scene from "./Scene";
@@ -7,7 +8,7 @@ export abstract class App {
 
     // TODO: Encapsulate, make private
     // TODO: Context management to avoid passing this property everywhere
-    public readonly Context: WebGLRenderingContext = null;
+    public readonly Context: Context = null;
 
     // TODO: Move canvas to Scene to allow multi-context apps
     public readonly Canvas: HTMLCanvasElement;
@@ -24,7 +25,7 @@ export abstract class App {
 
     constructor(canvas: HTMLCanvasElement) {
         this.Canvas = canvas;
-        this.Context = canvas.getContext("webgl");
+        this.Context = new Context(canvas.getContext("webgl"));
 
         App.Instance = this;
 
@@ -55,8 +56,9 @@ export abstract class App {
     }
 
     private renderStart() {
-        this.Context.clear(
-            this.Context.COLOR_BUFFER_BIT | this.Context.DEPTH_BUFFER_BIT
+        this.Context.WebGL.clear(
+            this.Context.WebGL.COLOR_BUFFER_BIT |
+                 this.Context.WebGL.DEPTH_BUFFER_BIT
         );
     }
 
