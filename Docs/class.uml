@@ -1,16 +1,76 @@
 @startuml
 
 abstract class App {
-    -resourceManager: ResourceManager
+    {static} +Instance: App
+    +Context: Context
+    +Canvas: HTMLCanvasElement
+    +Resources: ResourceManager
+    +Input: InputManager
+
+    -scenes: Scene[]
+    -activeScene: Scene
+
+    -runtime: number
+    -previousTimestamp: number
+
+    +App(canvas: HTMLCanvasElement)
+    {abstract} +Initialize(): void
+    {abstract} +Update(deltaTime: float): void
+    +GetRuntime(): number
+
+    -startUpdateLoop(): void
+    -renderStart(): void
+    -renderEnd(): void
 }
+
+class ConcreteApp {
+    +Initialize(): void
+    +Update(deltaTime: number): void
+}
+
+package Graphics {
+    class Context {
+        {static} +Instance: WebGLRenderingContent
+        +WebGL: WebGLRenderingContext
+    }
+
+    enum DataType {
+        Float32
+        Float64
+        Int8
+        Int16
+        Int32
+        Int64
+        Uint8
+        Uint16
+        Uint32
+    }
+}
+
 
 class ResourceManager {
     -app: App
     -resources: Map<ResourceType, Resource[]>
 }
 
-class ConcreteApp {
+class InputManager {
+    -pressedKeys: Set<string>
+    -keyCodes: Map<string, Key>
+    -keyDownHandlers: Map<string, Handler[]>
+    -keyUpHandlers: Map<string, Handler[]>
+    -keyHeldHandlers: Map<string, Handler[]>
 
+    +KeyHeld(key: Key): boolean
+    +OnKeyDown(key: Key, handler: Handler)
+    +OnKeyUp(key: Key, handler: Handler)
+    +OnKeyHeld(key: Key, handler: Handler)
+}
+
+enum Key {
+    W
+    A
+    S
+    D
 }
 
 class Scene {
@@ -46,9 +106,47 @@ abstract class Resource {
 }
 
 class Mesh {
-    -vertices: float[]
-    -uvs: float[]
-    -indices: uint16[]
+    +Dimension: number
+    #shaderProgram: ShaderProgram
+    #attributes: Map<string, Attribute>
+    #vertexArrayAttribute: Vector3ArrayAttribute
+    #normalArrayAttribute: Vector3ArrayAttribute
+    #uvArrayAttribute: Vector2ArrayAttribute
+    #indices: uint16[]
+
+    +Render(context: Context): void
+}
+
+class Mesh2 {
+    #vertexArrayAttribute: Vector3ArrayAttribute
+}
+
+class Mesh3 {
+    #vertexArrayAttribute: Vector3ArrayAttribute
+}
+
+abstract class Attribute {
+    +Name: string
+    +Type: DataType
+    +Size: number
+    +Location: number
+    -shaderProgram: ShaderProgram
+}
+
+class ArrayAttribute<TArray> {
+    +Data: TArray
+}
+
+class Vector2ArrayAttribute {
+
+}
+
+class Vector3ArrayAttribute {
+
+}
+
+class Vector4ArrayAttribute {
+
 }
 
 class Texture {
@@ -67,27 +165,40 @@ class ShaderProgram {
 
 }
 
-struct Vector3 {
-    +x: int
-    +y: int
-    +z: int
-}
+package Math {
+    package Vector {
+        struct Vector2 {
+            +x: int
+            +y: int
+        }
 
-struct Vector2 {
-    +x: int
-    +y: int
-}
+        struct Vector3 {
+            +x: int
+            +y: int
+            +z: int
+        }
 
-struct Matrix2 {
-    -values: float[4]
-}
+        struct Vector4 {
+            +x: int
+            +y: int
+            +z: int
+            +w: int
+        }
+    }
 
-struct Matrix3 {
-    -values: float[9]
-}
+    package Matrix {
+        struct Matrix2 {
+            -values: float[4]
+        }
 
-struct Matrix4 {
-    -values: float[16]
+        struct Matrix3 {
+            -values: float[9]
+        }
+
+        struct Matrix4 {
+            -values: float[16]
+        }
+    }
 }
 
 App <|-- ConcreteApp
@@ -98,8 +209,13 @@ Resource <|-- Material
 Resource <|-- Shader
 Resource <|-- ShaderProgram
 
+App *-- "1" Context
+
 App "1" *-- "1" ResourceManager
 ResourceManager "1" *-- "*" Resource
+
+App *-- "1" InputManager
+InputManager *-- "*" Key
 
 App "1" *-- "*" Scene
 Scene "1" *-- "*" Entity
@@ -115,5 +231,17 @@ RenderComponent <|-- StaticMeshComponent
 
 StaticMeshComponent o-- "1" Mesh
 Mesh o-- "1" ShaderProgram
+
+Mesh <|-- Mesh2
+Mesh <|-- Mesh3
+
+Attribute <|-- ArrayAttribute
+ArrayAttribute <|-- Vector2ArrayAttribute
+ArrayAttribute <|-- Vector3ArrayAttribute
+ArrayAttribute <|-- Vector4ArrayAttribute
+
+Attribute *-- "1" DataType
+
+Mesh o-- "*" Attribute
 
 @enduml
