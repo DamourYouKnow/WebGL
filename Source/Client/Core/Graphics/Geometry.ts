@@ -1,5 +1,12 @@
 import { App } from '../App';
-import { Context, Attribute } from './Graphics';
+
+import { 
+    Context, 
+    Attribute, 
+    ArrayAttribute,
+    Vector3ArrayAttribute
+} from './Graphics';
+
 import { Vector3 } from '../Math/Vector';
 import { Shader, ShaderProgram } from './Shader';
 import { Pi } from '../Math/Math';
@@ -21,14 +28,14 @@ export class Mesh {
 
     public readonly Attributes: { [key: string]: Attribute };
 
-    private vertices: Float32Array;
     private indices?: Uint16Array;
     private textureCoordinates?: Float32Array;
     private normals?: Float32Array;
 
     private barycentricCoordinates: Float32Array;
 
-    private vertexBuffer: WebGLBuffer;
+    private vertexAttributeArray: Vector3ArrayAttribute; 
+
     private indexBuffer?: WebGLBuffer;
     private textureBuffer?: WebGLBuffer;
     private normalBuffer?: WebGLBuffer;
@@ -46,10 +53,16 @@ export class Mesh {
         this.SetShaderProgram(shaderProgram);
 
         // Create vertex buffer
-        this.vertices = meshData.vertices instanceof Float32Array ?
+        const verticesData = meshData.vertices instanceof Float32Array ?
             meshData.vertices : new Float32Array(meshData.vertices);
 
-        this.vertexBuffer = this.createVertexBuffer(App.Instance.Context.WebGL);
+        this.vertexAttributeArray = new Vector3ArrayAttribute(
+            shaderProgram,
+            "a_position",
+            verticesData,
+        );
+
+        const test = this.vertexAttributeArray.Data;
 
         /*
         this.barycentricBuffer = this.createBarycentricBuffer(
@@ -69,7 +82,7 @@ export class Mesh {
 
         // Assign barycentric coordinates to vertices
         this.barycentricCoordinates = barycentricVertices(
-            this.vertices,
+            this.vertexAttributeArray.Data,
             this.indices
         );
 
@@ -101,7 +114,7 @@ export class Mesh {
     }
     
     public Vertices(): Float32Array {
-        return this.vertices;
+        return this.vertexAttributeArray.Data;
     }
 
     public Indices(): Uint16Array | null {
@@ -120,7 +133,7 @@ export class Mesh {
     }
 
     public VertexSize(): number {
-        return this.vertices.byteLength;
+        return this.vertexAttributeArray.Data.byteLength;
     }
 
     public IndexSize(): number {
@@ -129,7 +142,8 @@ export class Mesh {
     }
 
     public VertexCount(): number {
-        return this.vertices.length / 2; // TODO: Valid for 2D vertices
+        // TODO: Valid for 2D vertices?
+        return this.vertexAttributeArray.Data.length / 2;
     }
 
     public IndexCount(): number {
@@ -137,46 +151,12 @@ export class Mesh {
         return this.indices.length;
     }
 
-    public GetVertexBuffer(): WebGLBuffer {
-        return this.vertexBuffer;
+    public SetAttribute(attribute: Attribute) {
+        this.Attributes[attribute.Name] = attribute;
     }
 
     public GetIndexBuffer(): WebGLBuffer | null {
         return this.indexBuffer ? this.indexBuffer : null;
-    }
-
-    // TODO: Helper function for initializing buffers
-    // TODO: Abstraction for context
-    private createVertexBuffer(context: WebGLRenderingContext): WebGLBuffer {
-        const vertexBuffer = context.createBuffer();
-        
-        context.bindBuffer(context.ARRAY_BUFFER, vertexBuffer);
-        
-        context.bufferData(
-            context.ARRAY_BUFFER, 
-            this.Vertices(), 
-            context.STATIC_DRAW
-        );
-
-        const positionAttribute = context.getAttribLocation(
-            this.shaderProgram.GetProgram(),
-            "a_position"
-        );
-
-        context.vertexAttribPointer(
-            positionAttribute, 
-            this.Dimension,
-            context.FLOAT, 
-            false, 
-            0, 
-            0
-        );
-
-        context.enableVertexAttribArray(positionAttribute);
-
-        context.bindBuffer(context.ARRAY_BUFFER, null);
-
-        return vertexBuffer;
     }
 
     // TODO: Abstraction for context

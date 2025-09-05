@@ -107,11 +107,16 @@ export class ArrayAttribute<TArray extends ArrayUnion> extends Attribute {
         size: number
     ) {
         const elementType = Attribute.ElementTypes[data.constructor.name];
-        if (!elementType) throw Error("Invalid attribute element type");
+        if (elementType == null) throw Error("Invalid attribute element type");
 
         super(shaderProgram, name, data, elementType, size);
 
         this.Buffer = Context.Instance.WebGL.createBuffer();
+
+        Context.Instance.WebGL.bindBuffer(
+            Context.Instance.WebGL.ARRAY_BUFFER,
+            this.Buffer
+        );
 
         Context.Instance.WebGL.bufferData(
             Context.Instance.WebGL.ARRAY_BUFFER,
@@ -119,10 +124,12 @@ export class ArrayAttribute<TArray extends ArrayUnion> extends Attribute {
             Context.Instance.WebGL.STATIC_DRAW
         );
 
+        const dataType = Context.Instance.Types[this.Type]; 
+
         Context.Instance.WebGL.vertexAttribPointer(
             this.Location,
             this.Size,
-            Context.Instance.Types[this.Type],
+            dataType,
             false,
             0,
             0
@@ -134,8 +141,6 @@ export class ArrayAttribute<TArray extends ArrayUnion> extends Attribute {
             Context.Instance.WebGL.ARRAY_BUFFER,
             null
         );
-
-        this.Data.constructor.name;
     }
 }
 
