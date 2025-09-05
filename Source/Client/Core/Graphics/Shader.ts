@@ -1,5 +1,5 @@
 import { Context } from "./Graphics";
-import { requestFile } from "../Web";
+import { requestTextFile } from "../Web";
 
 type ShaderType = "Vertex" | "Fragment";
 
@@ -86,10 +86,10 @@ export class ShaderProgram {
     ): Promise<ShaderProgram> {
         if (!context) return;
 
-        const vertexShaderSource = await requestFile(
+        const vertexShaderSource = await requestTextFile(
             `shaders/${vertexPath}`
         );
-        const fragmentShaderSource = await requestFile(
+        const fragmentShaderSource = await requestTextFile(
             `shaders/${fragmentPath}`
         );
 

@@ -4,6 +4,7 @@ import { Matrix4 } from '../Core/Math/Matrix';
 import { Shaders, ShaderProgram } from '../Core/Graphics/Shader';
 import { Key } from '../Core/InputManager';
 import { Mesh3, Shapes } from '../Core/Graphics/Geometry';
+import { requestImageFile } from '../Core/Web';
 
 import { 
     ArrayAttribute, 
@@ -17,6 +18,8 @@ export default class TestApp extends App {
     private shape: Mesh3;
 
     public async Initialize() {
+        const cat = await requestImageFile('assets/textures/cat.jpg');
+
         this.Input.OnKeyDown(Key.W, () => console.log('W key pressed'));
         this.Input.OnKeyUp(Key.W, () => console.log('W key released'));
     
