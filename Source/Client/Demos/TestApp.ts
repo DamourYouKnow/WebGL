@@ -5,6 +5,13 @@ import { Shaders, ShaderProgram } from '../Core/Graphics/Shader';
 import { Key } from '../Core/InputManager';
 import { Mesh3, Shapes } from '../Core/Graphics/Geometry';
 
+import { 
+    ArrayAttribute, 
+    Vector4ArrayAttribute 
+} from '../Core/Graphics/Graphics';
+
+import { makeArray } from '../Core/Utils';
+
 export default class TestApp extends App {
     private sp: ShaderProgram;
     private shape: Mesh3;
@@ -49,32 +56,14 @@ export default class TestApp extends App {
             return [...acc, value];
         }, []);
 
-        const colorLocation = this.Context.WebGL.getAttribLocation(
-            shaderProgram.GetProgram(),
-            "a_color"
+        const colorArrayAttribute = new Vector4ArrayAttribute(
+            shaderProgram,
+            "a_color",
+            makeArray(Float32Array, colors)
         );
+        shape.SetAttribute(colorArrayAttribute);
 
-        const colorBuffer = this.Context.WebGL.createBuffer();
-        this.Context.WebGL.bindBuffer(
-            this.Context.WebGL.ARRAY_BUFFER,
-            colorBuffer
-        );
-        this.Context.WebGL.bufferData(
-            this.Context.WebGL.ARRAY_BUFFER,
-            new Float32Array(colors),
-            this.Context.WebGL.STATIC_DRAW
-        );
-        this.Context.WebGL.vertexAttribPointer(
-            colorLocation,
-            4,
-            this.Context.WebGL.FLOAT,
-            false,
-            0,
-            0
-        );
-        this.Context.WebGL.enableVertexAttribArray(colorLocation);
-    
-
+        // TODO: Move to mesh render
         this.Context.WebGL.useProgram(shaderProgram.GetProgram());
 
         this.Context.WebGL.viewport(

@@ -1,4 +1,5 @@
 import { ShaderProgram } from "./Shader";
+import { ArrayUnion } from "../Utils";
 
 enum ElementType {
     Float32,
@@ -13,10 +14,7 @@ enum ElementType {
 }
 
 // TODO: Support Float16Array
-type ArrayUnion = 
-    Float32Array | Float64Array |
-    Int8Array | Int16Array | Int32Array | BigInt64Array |
-    Uint8Array | Uint16Array | Uint32Array;
+
 
 type Location = number;
 
@@ -69,9 +67,6 @@ export abstract class Attribute {
         "Uint32Array": ElementType.Uint32
     };
 
-
-    // abstract readonly Type: unknown;
-
     public constructor(
         shaderProgram: ShaderProgram,
         name: string,
@@ -85,6 +80,7 @@ export abstract class Attribute {
         this.Type = type;
         this.Size = size;
 
+        // TODO: Move outside constructor, return null if -1
         this.location = shaderProgram.Context.WebGL.getAttribLocation(
             shaderProgram.GetProgram(),
             name
@@ -111,36 +107,39 @@ export class ArrayAttribute<TArray extends ArrayUnion> extends Attribute {
 
         super(shaderProgram, name, data, elementType, size);
 
-        this.Buffer = Context.Instance.WebGL.createBuffer();
+        // TODO: Create factory function so we can return null
+        if (this.Location != -1) {
+            this.Buffer = Context.Instance.WebGL.createBuffer();
 
-        Context.Instance.WebGL.bindBuffer(
-            Context.Instance.WebGL.ARRAY_BUFFER,
-            this.Buffer
-        );
+            Context.Instance.WebGL.bindBuffer(
+                Context.Instance.WebGL.ARRAY_BUFFER,
+                this.Buffer
+            );
 
-        Context.Instance.WebGL.bufferData(
-            Context.Instance.WebGL.ARRAY_BUFFER,
-            this.Data,
-            Context.Instance.WebGL.STATIC_DRAW
-        );
+            Context.Instance.WebGL.bufferData(
+                Context.Instance.WebGL.ARRAY_BUFFER,
+                this.Data,
+                Context.Instance.WebGL.STATIC_DRAW
+            );
 
-        const dataType = Context.Instance.Types[this.Type]; 
+            const dataType = Context.Instance.Types[this.Type]; 
 
-        Context.Instance.WebGL.vertexAttribPointer(
-            this.Location,
-            this.Size,
-            dataType,
-            false,
-            0,
-            0
-        );
+            Context.Instance.WebGL.vertexAttribPointer(
+                this.Location,
+                this.Size,
+                dataType,
+                false,
+                0,
+                0
+            );
 
-        Context.Instance.WebGL.enableVertexAttribArray(this.Location);
+            Context.Instance.WebGL.enableVertexAttribArray(this.Location);
 
-        Context.Instance.WebGL.bindBuffer(
-            Context.Instance.WebGL.ARRAY_BUFFER,
-            null
-        );
+            Context.Instance.WebGL.bindBuffer(
+                Context.Instance.WebGL.ARRAY_BUFFER,
+                null
+            );
+        }
     }
 }
 

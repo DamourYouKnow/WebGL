@@ -4,12 +4,14 @@ import {
     Context, 
     Attribute, 
     ArrayAttribute,
-    Vector3ArrayAttribute
+    Vector3ArrayAttribute,
+    Vector2ArrayAttribute
 } from './Graphics';
 
 import { Vector3 } from '../Math/Vector';
-import { Shader, ShaderProgram } from './Shader';
+import { ShaderProgram } from './Shader';
 import { Pi } from '../Math/Math';
+import { makeArray } from '../Utils';
 
 // TODO: Refactor into seperate files
 
@@ -23,25 +25,20 @@ interface MeshData {
 }
 
 
-export class Mesh {
+abstract class Mesh {
     public readonly Dimension: Dimension;
 
-    public readonly Attributes: { [key: string]: Attribute };
+    public readonly Attributes: { [key: string]: Attribute } = { };
 
-    private indices?: Uint16Array;
-    private textureCoordinates?: Float32Array;
-    private normals?: Float32Array;
+    protected shaderProgram: ShaderProgram;
 
-    private barycentricCoordinates: Float32Array;
+    protected indices?: Uint16Array;
 
-    private vertexAttributeArray: Vector3ArrayAttribute; 
+    protected abstract vertexArrayAttribute: ArrayAttribute<Float32Array>;
+    protected normalArrayAttribute: Vector3ArrayAttribute;
+    protected uvArrayAttribute: Vector2ArrayAttribute;
 
     private indexBuffer?: WebGLBuffer;
-    private textureBuffer?: WebGLBuffer;
-    private normalBuffer?: WebGLBuffer;
-    private barycentricBuffer: WebGLBuffer;
-
-    private shaderProgram: ShaderProgram;
 
     public constructor(
         dimension: Dimension,
@@ -49,72 +46,43 @@ export class Mesh {
         meshData: MeshData
     ) {
         this.Dimension = dimension;
-
         this.SetShaderProgram(shaderProgram);
-
-        // Create vertex buffer
-        const verticesData = meshData.vertices instanceof Float32Array ?
-            meshData.vertices : new Float32Array(meshData.vertices);
-
-        this.vertexAttributeArray = new Vector3ArrayAttribute(
-            shaderProgram,
-            "a_position",
-            verticesData,
-        );
-
-        const test = this.vertexAttributeArray.Data;
-
-        /*
-        this.barycentricBuffer = this.createBarycentricBuffer(
-            App.Instance.Context
-        );
-        */
 
         // Create index buffer if applicable
         if (meshData.indices) {
-            this.indices = meshData.indices instanceof Uint16Array ?
-                meshData.indices : new Uint16Array(meshData.indices);
+            this.indices = makeArray(Uint16Array, meshData.indices);
 
             this.indexBuffer = this.createIndexBuffer(
                 App.Instance.Context.WebGL
             );
         }
 
-        // Assign barycentric coordinates to vertices
-        this.barycentricCoordinates = barycentricVertices(
-            this.vertexAttributeArray.Data,
-            this.indices
-        );
+        // Create normal attribute array if applicable
+        // Using 3D vectors, even in a 2D context
+        if (meshData.normals) {
+            this.normalArrayAttribute = new Vector3ArrayAttribute(
+                this.shaderProgram,
+                "a_normal",
+                makeArray(Float32Array, meshData.normals)
+            );
+            
+            this.SetAttribute(this.normalArrayAttribute);
+        }
 
         // Create texture buffer if applicable
         if (meshData.textureCoordinates) {
-            if (meshData.textureCoordinates instanceof Float32Array) {
-                this.textureCoordinates = meshData.textureCoordinates;
-            }
-            else {
-                this.textureCoordinates = new Float32Array(
-                    meshData.textureCoordinates
-                );
-            }
-
-            this.textureBuffer = this.createTextureBuffer(
-                App.Instance.Context.WebGL
+            this.uvArrayAttribute = new Vector2ArrayAttribute(
+                shaderProgram,
+                "a_uv",
+                makeArray(Float32Array, meshData.textureCoordinates)
             );
-        }
 
-        // Create normal buffer if applicable
-        if (meshData.normals) {
-            this.normals = meshData.normals instanceof Float32Array ?
-                meshData.normals : new Float32Array(meshData.normals);
-
-            this.normalBuffer = this.createNormalBuffer(
-                App.Instance.Context.WebGL
-            );
+            this.SetAttribute(this.uvArrayAttribute);
         }
     }
     
     public Vertices(): Float32Array {
-        return this.vertexAttributeArray.Data;
+        return this.vertexArrayAttribute.Data;
     }
 
     public Indices(): Uint16Array | null {
@@ -123,17 +91,17 @@ export class Mesh {
     }
 
     public TextureCoordinates(): Float32Array | null {
-        if (!this.textureCoordinates) return null;
-        return this.textureCoordinates;
+        if (!this.uvArrayAttribute) return null;
+        return this.uvArrayAttribute.Data;
     }
 
     public Normals(): Float32Array | null {
-        if (!this.normals) return null;
-        return this.normals;
+        if (!this.normalArrayAttribute) return null;
+        return this.normalArrayAttribute.Data;
     }
 
     public VertexSize(): number {
-        return this.vertexAttributeArray.Data.byteLength;
+        return this.vertexArrayAttribute.Data.byteLength;
     }
 
     public IndexSize(): number {
@@ -142,8 +110,7 @@ export class Mesh {
     }
 
     public VertexCount(): number {
-        // TODO: Valid for 2D vertices?
-        return this.vertexAttributeArray.Data.length / 2;
+        return this.vertexArrayAttribute.Data.length / this.Dimension;
     }
 
     public IndexCount(): number {
@@ -153,6 +120,14 @@ export class Mesh {
 
     public SetAttribute(attribute: Attribute) {
         this.Attributes[attribute.Name] = attribute;
+    }
+
+    public GetAttribute<TAttribute extends Attribute>(
+        name: string
+    ): TAttribute | null {
+        const foundAttribute = this.Attributes[name];
+        if (foundAttribute) return foundAttribute as TAttribute;
+        return null;
     }
 
     public GetIndexBuffer(): WebGLBuffer | null {
@@ -174,61 +149,6 @@ export class Mesh {
         context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, null);
 
         return indexBuffer;
-    }
-
-    private createTextureBuffer(context: WebGLRenderingContext): WebGLBuffer {
-        // TODO
-        throw Error("Not implemented");
-    }
-
-    private createNormalBuffer(context: WebGLRenderingContext): WebGLBuffer {
-        const normalBuffer = context.createBuffer();
-        
-        context.bindBuffer(context.ARRAY_BUFFER, normalBuffer);
-
-        context.bufferData(
-            context.ARRAY_BUFFER,
-            this.Normals(),
-            context.STATIC_DRAW
-        );
-
-        return normalBuffer;
-    }
-
-    // TODO: Only create when using wireframe shader program.
-    // TODO: Use indices to create overlapping vertices.
-    private createBarycentricBuffer(
-        context: WebGLRenderingContext
-    ): WebGLBuffer {
-        const barycentricBuffer = context.createBuffer();
-        
-        context.bindBuffer(context.ARRAY_BUFFER, barycentricBuffer);
-
-        context.bufferData(
-            context.ARRAY_BUFFER,
-            this.barycentricCoordinates,
-            context.STATIC_DRAW
-        );
-
-        const barycentricAttribute = context.getAttribLocation(
-            this.shaderProgram.GetProgram(),
-            "a_barycentric"
-        );
-
-        context.vertexAttribPointer(
-            barycentricAttribute,
-            this.Dimension,
-            context.FLOAT,
-            false,
-            0,
-            0
-        );
-
-        context.enableVertexAttribArray(barycentricAttribute);
-
-        context.bindBuffer(context.ARRAY_BUFFER, null);
-
-        return barycentricBuffer;
     }
 
     // TODO: Create RenderOptions interface
@@ -268,14 +188,45 @@ export class Mesh {
 }
 
 export class Mesh2 extends Mesh {
+    protected vertexArrayAttribute: Vector3ArrayAttribute;
+
     public constructor(shaderProgram: ShaderProgram, meshData: MeshData) {
         super(2, shaderProgram, meshData);
     }
 }
 
 export class Mesh3 extends Mesh {
+    protected vertexArrayAttribute: Vector3ArrayAttribute;
+    protected barycentricArrayAttribute: Vector3ArrayAttribute;
+
     public constructor(shaderProgram: ShaderProgram, meshData) {
         super(3, shaderProgram, meshData);
+
+        // Create vertex position attribute array
+        this.vertexArrayAttribute = new Vector3ArrayAttribute(
+            this.shaderProgram,
+            "a_position",
+            makeArray(Float32Array, meshData.vertices),
+        );
+
+        this.SetAttribute(this.vertexArrayAttribute);
+
+        // Create barycentric attribute
+        // TODO: Only create when using wireframe shader program.
+        // TODO: Use indices to create overlapping vertices.
+        this.barycentricArrayAttribute = new Vector3ArrayAttribute(
+            this.shaderProgram,
+            "a_barycentric",
+            makeArray(
+                Float32Array,
+                barycentricVertices(
+                    this.vertexArrayAttribute.Data, 
+                    this.indices
+                )
+            )
+        );
+
+        this.SetAttribute(this.barycentricArrayAttribute);
     }
 }
 

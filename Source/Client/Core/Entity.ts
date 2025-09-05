@@ -20,10 +20,10 @@ export default class Entity {
 
     // TODO: Explicitly define parameters instead of using any type
     public CreateComponent<TComponent extends Component>(
-        creator: new(...args: any[]) => TComponent,
-        ...args: any[]
+        creator: new(...args: unknown[]) => TComponent,
+        ...args: unknown[]
     ): TComponent {
-        const component = new creator(...args);
+        const component: TComponent = new creator(...args);
         return this.AddComponent(component);
     }
 
