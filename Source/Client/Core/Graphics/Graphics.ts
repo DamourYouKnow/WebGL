@@ -1,5 +1,23 @@
 import { ShaderProgram } from "./Shader";
 
+enum ElementType {
+    Float32,
+    Float64,
+    Int8,
+    Int16,
+    Int32,
+    BigInt64,
+    Uint8,
+    Uint16,
+    Uint32
+}
+
+// TODO: Support Float16Array
+type ArrayUnion = 
+    Float32Array | Float64Array |
+    Int8Array | Int16Array | Int32Array | BigInt64Array |
+    Uint8Array | Uint16Array | Uint32Array;
+
 type Location = number;
 
 // TODO: Create "contextable" resource abstract base class
@@ -9,25 +27,48 @@ export class Context {
 
     public readonly WebGL: WebGLRenderingContext;
 
+    public readonly Types: { [key in ElementType] : number };
+
     public constructor(webGL: WebGLRenderingContext) {
         this.WebGL = webGL;
         Context.Instance = this;
+
+        this.Types = {
+            [ElementType.Float32]: this.WebGL.FLOAT,
+            [ElementType.Float64]: this.WebGL.HIGH_FLOAT,
+            [ElementType.Int8]: this.WebGL.BYTE,
+            [ElementType.Int16]: this.WebGL.SHORT,
+            [ElementType.Int32]: this.WebGL.INT,
+            [ElementType.BigInt64]: this.WebGL.HIGH_INT,
+            [ElementType.Uint8]: this.WebGL.UNSIGNED_BYTE,
+            [ElementType.Uint16]: this.WebGL.UNSIGNED_SHORT,
+            [ElementType.Uint32]: this.WebGL.UNSIGNED_INT
+        };
     }
 }
-
-type ArrayUnion = 
-    Float32Array | Float64Array |
-    Int8Array | Int16Array | Int32Array | BigInt64Array |
-    Uint8Array | Uint16Array | Uint32Array | BigUint64Array;
 
 export abstract class Attribute {
     public readonly Name: string;
     public readonly Data: unknown;
+    public readonly Type: ElementType;
     public readonly Size: number;
-    public readonly Type: number; // TODO: Create stricter type
     
     private shaderProgram: ShaderProgram;
     private location: Location;
+
+    // TODO: Support Float16
+    public static readonly ElementTypes = {
+        "Float32Array": ElementType.Float32,
+        "Float64Array": ElementType.Float64,
+        "Int8Array": ElementType.Int8,
+        "Int16Array": ElementType.Int16,
+        "Int32Array": ElementType.Int32,
+        "BigInt64Array": ElementType.BigInt64,
+        "Uint8Array": ElementType.Uint8,
+        "Uint16Array": ElementType.Uint16,
+        "Uint32Array": ElementType.Uint32
+    };
+
 
     // abstract readonly Type: unknown;
 
@@ -35,11 +76,14 @@ export abstract class Attribute {
         shaderProgram: ShaderProgram,
         name: string,
         data: unknown,
+        type: ElementType,
         size: number
     ) {
         this.shaderProgram = shaderProgram;
         this.Name = name;
         this.Data = data;
+        this.Type = type;
+        this.Size = size;
 
         this.location = shaderProgram.Context.WebGL.getAttribLocation(
             shaderProgram.GetProgram(),
@@ -62,7 +106,10 @@ export class ArrayAttribute<TArray extends ArrayUnion> extends Attribute {
         data: TArray,
         size: number
     ) {
-        super(shaderProgram, name, data, size);
+        const elementType = Attribute.ElementTypes[data.constructor.name];
+        if (!elementType) throw Error("Invalid attribute element type");
+
+        super(shaderProgram, name, data, elementType, size);
 
         this.Buffer = Context.Instance.WebGL.createBuffer();
 
@@ -75,12 +122,20 @@ export class ArrayAttribute<TArray extends ArrayUnion> extends Attribute {
         Context.Instance.WebGL.vertexAttribPointer(
             this.Location,
             this.Size,
-            Context.Instance.WebGL.FLOAT, // TODO: Support other types
+            Context.Instance.Types[this.Type],
             false,
             0,
             0
         );
 
+        Context.Instance.WebGL.enableVertexAttribArray(this.Location);
+
+        Context.Instance.WebGL.bindBuffer(
+            Context.Instance.WebGL.ARRAY_BUFFER,
+            null
+        );
+
+        this.Data.constructor.name;
     }
 }
 
